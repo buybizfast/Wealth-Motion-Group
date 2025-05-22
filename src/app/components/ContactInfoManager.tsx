@@ -17,7 +17,12 @@ interface ContactInfo {
   socialLinks: SocialLink[];
 }
 
-export default function ContactInfoManager() {
+interface ContactInfoManagerProps {
+  initialData?: any;
+  onChange?: (data: any) => void;
+}
+
+export default function ContactInfoManager({ initialData, onChange }: ContactInfoManagerProps) {
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,8 +31,19 @@ export default function ContactInfoManager() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
 
   useEffect(() => {
-    fetchContactInfo();
-  }, []);
+    if (initialData) {
+      // If props were provided, use them
+      setContactInfo({
+        email: initialData.email || "",
+        socialLinks: initialData.socialLinks || []
+      });
+      setSocialLinks(initialData.socialLinks || []);
+      setLoading(false);
+    } else {
+      // Otherwise fetch from Firestore
+      fetchContactInfo();
+    }
+  }, [initialData]);
 
   const fetchContactInfo = async () => {
     setLoading(true);
@@ -73,10 +89,19 @@ export default function ContactInfoManager() {
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (contactInfo) {
-      setContactInfo({
+      const updatedInfo = {
         ...contactInfo,
         email: e.target.value,
-      });
+      };
+      setContactInfo(updatedInfo);
+      
+      // If onChange handler was provided, call it
+      if (onChange) {
+        onChange({
+          ...updatedInfo,
+          socialLinks
+        });
+      }
     }
   };
 
@@ -87,23 +112,54 @@ export default function ContactInfoManager() {
       [field]: value,
     };
     setSocialLinks(updatedLinks);
+    
+    // If onChange handler was provided, call it
+    if (onChange && contactInfo) {
+      onChange({
+        ...contactInfo, 
+        socialLinks: updatedLinks
+      });
+    }
   };
 
   const addSocialLink = () => {
-    setSocialLinks([
+    const updatedLinks = [
       ...socialLinks,
       { name: "", value: "", url: "" },
-    ]);
+    ];
+    setSocialLinks(updatedLinks);
+    
+    // If onChange handler was provided, call it
+    if (onChange && contactInfo) {
+      onChange({
+        ...contactInfo,
+        socialLinks: updatedLinks
+      });
+    }
   };
 
   const removeSocialLink = (index: number) => {
     const updatedLinks = [...socialLinks];
     updatedLinks.splice(index, 1);
     setSocialLinks(updatedLinks);
+    
+    // If onChange handler was provided, call it
+    if (onChange && contactInfo) {
+      onChange({
+        ...contactInfo,
+        socialLinks: updatedLinks
+      });
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // If we're using the component in edit mode with props, don't save to Firebase
+    if (onChange) {
+      return;
+    }
+    
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -136,9 +192,12 @@ export default function ContactInfoManager() {
     return <div className="text-center p-4">Loading contact information...</div>;
   }
 
+  // Only show save button when not in onChange mode
+  const showSaveButton = !onChange;
+
   return (
     <div className="bg-mwg-dark border border-mwg-border rounded-lg p-6">
-      <h2 className="text-xl font-bold text-mwg-text mb-4">Contact Information</h2>
+      {!onChange && <h2 className="text-xl font-bold text-mwg-text mb-4">Contact Information</h2>}
       
       {error && (
         <div className="bg-red-900/30 border border-red-600 text-red-400 p-3 rounded-md mb-4">
@@ -225,15 +284,17 @@ export default function ContactInfoManager() {
           ))}
         </div>
         
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full bg-mwg-accent text-mwg-dark font-semibold px-4 py-2 rounded-md shadow hover:brightness-110 transition disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save Contact Information"}
-          </button>
-        </div>
+        {showSaveButton && (
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full bg-mwg-accent text-mwg-dark font-semibold px-4 py-2 rounded-md shadow hover:brightness-110 transition disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save Contact Information"}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

@@ -9,7 +9,7 @@ import initializeResources from "@/scripts/initializeResources";
 import RichTextEditor from "./RichTextEditor";
 import ContactInfoManager from "./ContactInfoManager";
 
-const BLOG_COLLECTION = "blogs";
+const BLOG_COLLECTION = "blogPosts";
 const CONTENT_COLLECTION = "pageContent";
 const RESOURCES_COLLECTION = "resources";
 const SITE_SETTINGS_COLLECTION = "siteSettings";
@@ -727,22 +727,184 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">{editId ? "Edit Blog Post" : "Add New Blog Post"}</h2>
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
               onClick={handleInitializeBlogPosts}
+              disabled={isInitializingBlogPosts}
             >
-              Add Sample Posts
+              {isInitializingBlogPosts ? "Adding..." : "Add Sample Posts"}
             </button>
           </div>
           
-          {/* Blog form would go here */}
+          {/* Blog Form */}
+          <form onSubmit={handleBlogSubmit} id="blog-form" className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-gray-700 font-medium mb-2">Title *</label>
+              <input
+                type="text"
+                id="title"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="desc" className="block text-gray-700 font-medium mb-2">Short Description *</label>
+              <textarea
+                id="desc"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                rows={3}
+                value={form.desc}
+                onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="content" className="block text-gray-700 font-medium mb-2">Full Content *</label>
+              {RichTextEditor && (
+                <RichTextEditor 
+                  value={form.content || ''}
+                  onChange={(content) => setForm({ ...form, content })}
+                />
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="category" className="block text-gray-700 font-medium mb-2">Category *</label>
+                <div className="flex items-center gap-2">
+                  <select
+                    id="category"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="new">+ Add New Category</option>
+                  </select>
+                  {form.category === "new" && (
+                    <input
+                      type="text"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                      placeholder="New Category"
+                      onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label htmlFor="date" className="block text-gray-700 font-medium mb-2">Date *</label>
+                <input
+                  type="date"
+                  id="date"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2">Featured Image</label>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="blog-image"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setForm({ ...form, img: file });
+                  }}
+                />
+                <label
+                  htmlFor="blog-image"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+                >
+                  Choose File
+                </label>
+                <span className="text-gray-500 text-sm">
+                  {form.img instanceof File
+                    ? form.img.name
+                    : form.img
+                    ? "Current image will be kept"
+                    : "No file chosen"}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              {editId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm({ title: "", desc: "", content: "", category: "", date: "", img: null });
+                    setEditId(null);
+                  }}
+                  className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                type="submit"
+                className="px-4 py-2 bg-mwg-accent text-white rounded hover:bg-mwg-accent/80 disabled:opacity-50"
+                disabled={dataLoading}
+              >
+                {dataLoading ? "Saving..." : editId ? "Update Post" : "Create Post"}
+              </button>
+            </div>
+          </form>
           
           <h2 className="text-xl font-bold mt-8 mb-4">Existing Blog Posts</h2>
           {posts.length === 0 ? (
             <p className="text-gray-500">No blog posts yet. Add your first post above or click "Add Sample Posts".</p>
           ) : (
-            <div className="space-y-4">
-              {/* Blog posts would be listed here */}
-              <p>Found {posts.length} blog posts</p>
+            <div className="grid grid-cols-1 gap-4">
+              {posts.map((post) => (
+                <div key={post.id} className="bg-white p-4 rounded-lg shadow border border-gray-200 flex flex-col md:flex-row gap-4">
+                  <div className="md:w-48 h-32 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                    {post.img ? (
+                      <img src={post.img as string} alt={post.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
+                      <h3 className="font-bold text-lg">{post.title}</h3>
+                      <div className="flex items-center gap-2 mt-2 md:mt-0">
+                        <button
+                          onClick={() => handleEdit(post)}
+                          className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(post.id!)}
+                          className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 mb-2">
+                      <span className="inline-block bg-gray-100 rounded px-2 py-1 mr-2">
+                        {post.category}
+                      </span>
+                      <span>{post.date}</span>
+                    </div>
+                    <p className="text-gray-600 line-clamp-2">{post.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -751,27 +913,432 @@ export default function AdminDashboard() {
       {/* Resources tab */}
       {tab === "resources" && !dataLoading && (
         <div>
-          <h2 className="text-xl font-bold mb-4">Resources</h2>
-          {/* Resources content would go here */}
-          <p>Resources management section</p>
+          {actionSuccess && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+              <p>{actionSuccess}</p>
+            </div>
+          )}
+          
+          {actionError && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{actionError}</p>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{resourceEditId ? "Edit Resource" : "Add New Resource"}</h2>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={handleInitializeResources}
+              disabled={isInitializingResources}
+            >
+              {isInitializingResources ? "Adding..." : "Add Sample Resources"}
+            </button>
+          </div>
+          
+          {/* Resource Form */}
+          <form onSubmit={handleResourceSubmit} id="resource-form" className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="resourceCategory" className="block text-gray-700 font-medium mb-2">Category *</label>
+                <input
+                  type="text"
+                  id="resourceCategory"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                  value={resourceForm.category}
+                  onChange={(e) => setResourceForm({ ...resourceForm, category: e.target.value })}
+                  placeholder="e.g., trading-basics, technical-analysis"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="resourceCategoryLabel" className="block text-gray-700 font-medium mb-2">Category Label *</label>
+                <input
+                  type="text"
+                  id="resourceCategoryLabel"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                  value={resourceForm.categoryLabel}
+                  onChange={(e) => setResourceForm({ ...resourceForm, categoryLabel: e.target.value })}
+                  placeholder="e.g., Trading Basics, Technical Analysis"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="resourceTitle" className="block text-gray-700 font-medium mb-2">Title *</label>
+              <input
+                type="text"
+                id="resourceTitle"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                value={resourceForm.title}
+                onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="resourceDescription" className="block text-gray-700 font-medium mb-2">Description *</label>
+              <textarea
+                id="resourceDescription"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                rows={3}
+                value={resourceForm.description}
+                onChange={(e) => setResourceForm({ ...resourceForm, description: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="resourceLink" className="block text-gray-700 font-medium mb-2">Link *</label>
+              <input
+                type="url"
+                id="resourceLink"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                value={resourceForm.link}
+                onChange={(e) => setResourceForm({ ...resourceForm, link: e.target.value })}
+                placeholder="https://example.com/resource"
+                required
+              />
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2">Image</label>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="resource-image"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setResourceForm({ ...resourceForm, imageUrl: file });
+                  }}
+                />
+                <label
+                  htmlFor="resource-image"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+                >
+                  Choose File
+                </label>
+                <span className="text-gray-500 text-sm">
+                  {resourceForm.imageUrl instanceof File
+                    ? resourceForm.imageUrl.name
+                    : resourceForm.imageUrl
+                    ? "Current image will be kept"
+                    : "No file chosen"}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              {resourceEditId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResourceForm({ 
+                      category: "", 
+                      categoryLabel: "", 
+                      title: "", 
+                      description: "", 
+                      imageUrl: null, 
+                      link: "" 
+                    });
+                    setResourceEditId(null);
+                  }}
+                  className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                type="submit"
+                className="px-4 py-2 bg-mwg-accent text-white rounded hover:bg-mwg-accent/80 disabled:opacity-50"
+                disabled={dataLoading}
+              >
+                {dataLoading ? "Saving..." : resourceEditId ? "Update Resource" : "Create Resource"}
+              </button>
+            </div>
+          </form>
+          
+          <h2 className="text-xl font-bold mt-8 mb-4">Existing Resources</h2>
+          {resources.length === 0 ? (
+            <p className="text-gray-500">No resources yet. Add your first resource above or click "Add Sample Resources".</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {resources.map((resource) => (
+                <div key={resource.id} className="bg-white p-4 rounded-lg shadow border border-gray-200 flex flex-col md:flex-row gap-4">
+                  <div className="md:w-48 h-32 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                    {resource.imageUrl ? (
+                      <img src={resource.imageUrl as string} alt={resource.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
+                      <h3 className="font-bold text-lg">{resource.title}</h3>
+                      <div className="flex items-center gap-2 mt-2 md:mt-0">
+                        <button
+                          onClick={() => handleResourceEdit(resource)}
+                          className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleResourceDelete(resource.id!)}
+                          className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 mb-2">
+                      <span className="inline-block bg-gray-100 rounded px-2 py-1 mr-2">
+                        {resource.categoryLabel}
+                      </span>
+                      <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        Visit Resource
+                      </a>
+                    </div>
+                    <p className="text-gray-600 line-clamp-2">{resource.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       
       {/* Content tab */}
       {tab === "content" && !dataLoading && (
         <div>
-          <h2 className="text-xl font-bold mb-4">Page Content</h2>
-          {/* Page content editing would go here */}
-          <p>Page content management section</p>
+          {actionSuccess && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+              <p>{actionSuccess}</p>
+            </div>
+          )}
+          
+          {actionError && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{actionError}</p>
+            </div>
+          )}
+          
+          <h2 className="text-xl font-bold mb-4">Page Content Management</h2>
+          
+          {content.length === 0 ? (
+            <p className="text-gray-500">No page content found. Default content will be created automatically.</p>
+          ) : (
+            <div className="space-y-6">
+              {content.map((item) => (
+                <div key={item.id} className="bg-white p-6 rounded-lg shadow-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold capitalize">{item.pageName} Page</h3>
+                    <button
+                      onClick={() => handleContentSave(item.id)}
+                      className="px-4 py-2 bg-mwg-accent text-white rounded hover:bg-mwg-accent/80"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {item.pageName === "home" && (
+                      <>
+                        <div className="border-b pb-4">
+                          <h4 className="font-medium mb-2">Hero Section</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Title</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                                onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                                onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="border-b pb-4">
+                          <h4 className="font-medium mb-2">About Section</h4>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Title</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={contentEdit[item.id]?.["sections.about.title"] || item.content.sections.about.title}
+                                onChange={(e) => handleContentEdit(item.id, "sections.about.title" as any, e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Content</label>
+                              <textarea
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                rows={3}
+                                value={contentEdit[item.id]?.["sections.about.content"] || item.content.sections.about.content}
+                                onChange={(e) => handleContentEdit(item.id, "sections.about.content" as any, e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {item.pageName === "resources" && (
+                      <div className="border-b pb-4">
+                        <h4 className="font-medium mb-2">Hero Section</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-gray-600 text-sm mb-1">Title</label>
+                            <input
+                              type="text"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                              onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
+                            <input
+                              type="text"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                              onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {item.pageName === "contact" && (
+                      <>
+                        <div className="border-b pb-4">
+                          <h4 className="font-medium mb-2">Hero Section</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Title</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                                onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                                onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="border-b pb-4">
+                          <h4 className="font-medium mb-2">Contact Information</h4>
+                          <ContactInfoManager 
+                            initialData={item.content.sections.contactInfo}
+                            onChange={(newData) => handleContentEdit(item.id, "sections.contactInfo" as any, newData)}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       
       {/* Settings tab */}
       {tab === "settings" && !dataLoading && (
         <div>
+          {actionSuccess && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+              <p>{actionSuccess}</p>
+            </div>
+          )}
+          
+          {actionError && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{actionError}</p>
+            </div>
+          )}
+          
           <h2 className="text-xl font-bold mb-4">Site Settings</h2>
-          {/* Settings content would go here */}
-          <p>Site settings management section</p>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 className="font-bold text-lg mb-4">Footer Logo & Social Links</h3>
+            
+            <form onSubmit={handleFooterLogoSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Linktree URL</label>
+                <input
+                  type="url"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                  value={footerLogo.linkUrl}
+                  onChange={(e) => setFooterLogo({ ...footerLogo, linkUrl: e.target.value })}
+                  placeholder="https://linktr.ee/yourusername"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter your Linktree URL to link to all your social media profiles</p>
+              </div>
+              
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Footer Logo</label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="footer-logo"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleLogoImageChange(file);
+                    }}
+                  />
+                  <label
+                    htmlFor="footer-logo"
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+                  >
+                    Choose File
+                  </label>
+                  <span className="text-gray-500 text-sm">
+                    {footerLogo.imageUrl instanceof File
+                      ? footerLogo.imageUrl.name
+                      : footerLogo.imageUrl
+                      ? "Current logo will be kept"
+                      : "No file chosen"}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Recommended size: 320x120px</p>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-mwg-accent text-white rounded hover:bg-mwg-accent/80 disabled:opacity-50"
+                  disabled={footerLogoLoading}
+                >
+                  {footerLogoLoading ? "Saving..." : "Save Settings"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
