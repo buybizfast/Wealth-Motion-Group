@@ -1,48 +1,277 @@
-import Link from "next/link";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { getDocuments } from "@/lib/firebase/firebaseUtils";
+import MetadataManager from "@/components/MetadataManager";
+import JsonLd from "@/components/JsonLd";
+import { generateBlogPostSchema } from "@/lib/utils/structuredData";
+
+// Default content as fallback
+const defaultContent = {
+  hero: {
+    title: "Motion Wealth Group",
+    subtitle: "Building wealth through strategic investment insights",
+    buttonText: "Learn More"
+  },
+  about: {
+    title: "About Motion Wealth Group",
+    content: "Motion Wealth Group helps people learn about trading and investing. We give clear information so you can make better financial decisions.",
+    values: [
+      "Clear and honest advice",
+      "Always learning new things",
+      "Respecting your comfort with risk",
+      "Building wealth that lasts"
+    ]
+  },
+  cta: {
+    title: "Ready to Accelerate Your Trading Journey?",
+    content: "Connect with Motion Wealth Group for personalized insights and resources to help you achieve your financial goals."
+  }
+};
+
+interface BlogPost {
+  id?: string;
+  title: string;
+  desc: string;
+  category: string;
+  date: string;
+  img: string | null;
+  author?: string;
+}
+
+// Helper functions for data fetching and processing
+const fetchHomeContent = async () => {
+  try {
+    const content = await getDocuments("pageContent");
+    const homeContent = content.find((item: any) => item.pageName === "home");
+    
+    if (!homeContent || !homeContent.content) {
+      return defaultContent;
+    }
+    
+    // If content is a string (JSON), parse it
+    if (typeof homeContent.content === 'string') {
+      try {
+        return JSON.parse(homeContent.content);
+      } catch (e) {
+        console.error("Error parsing home content:", e);
+        return defaultContent;
+      }
+    }
+    
+    // If content is already an object
+    return homeContent.content.sections || homeContent.content;
+  } catch (error) {
+    console.error("Error fetching home content:", error);
+    return defaultContent;
+  }
+};
+
+const fetchRecentBlogPosts = async (): Promise<BlogPost[]> => {
+  try {
+    const blogPosts = await getDocuments("blogPosts");
+    
+    if (!blogPosts || blogPosts.length === 0) {
+      return [];
+    }
+    
+    // Sort by date (newest first) and take 2
+    return [...blogPosts]
+      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 2)
+      .map((post: any): BlogPost => ({
+        id: post.id,
+        title: post.title || "",
+        desc: post.desc || "",
+        category: post.category || "",
+        date: post.date || "",
+        img: post.img || null,
+        author: post.author || ""
+      }));
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    return [];
+  }
+};
+
+// UI Component for Blog Post Card
+const BlogPostCard = ({ post }: { post: BlogPost }) => (
+  <div className="bg-mwg-card border border-mwg-border rounded-lg overflow-hidden shadow-md">
+    {post.img && (
+      <div className="relative w-full h-48">
+        <Image
+          src={post.img}
+          alt={post.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
+        />
+      </div>
+    )}
+    <div className="p-4">
+      <div className="text-xs text-mwg-accent font-semibold mb-1">{post.category}</div>
+      <div className="text-lg font-bold text-mwg-text mb-1">{post.title}</div>
+      <div className="text-xs text-mwg-muted mb-2">{post.date}</div>
+      <div className="text-mwg-muted text-sm mb-2">{post.desc}</div>
+      <Link href={`/blog/${post.id}`} className="text-mwg-accent text-sm font-medium hover:underline flex items-center gap-1">
+        Read More <span>→</span>
+      </Link>
+    </div>
+  </div>
+);
+
+export default function HomePage() {
+  const [pageContent, setPageContent] = useState(defaultContent);
+  const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Fetch content in parallel
+        const [content, posts] = await Promise.all([
+          fetchHomeContent(),
+          fetchRecentBlogPosts()
+        ]);
+        
+        setPageContent(content);
+        setRecentPosts(posts);
+      } catch (error) {
+        console.error("Error loading page data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  // Generate structured data for blog posts
+  const getBlogPostsStructuredData = () => {
+    if (!recentPosts || recentPosts.length === 0) return null;
+    
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://motionwealthgroup.com';
+    
+    return recentPosts.map(post => {
+      const postData = {
+        title: post.title,
+        description: post.desc,
+        url: `${baseUrl}/blog/${post.id}`,
+        datePublished: post.date,
+        dateModified: post.date,
+        authorName: post.author || 'Motion Wealth Group',
+        publisherName: 'Motion Wealth Group',
+        publisherLogo: `${baseUrl}/logo.png`,
+        image: post.img || undefined,
+        category: post.category
+      };
+      
+      return generateBlogPostSchema(postData);
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mwg-accent"></div>
+      </div>
+    );
+  }
+
+  const blogPostSchemas = getBlogPostsStructuredData();
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-8">
-      <div>
-        <h2 className="text-2xl font-semibold text-center border p-4 font-mono rounded-md">
-          Get started by choosing a template path from the /paths/ folder.
+    <div className="flex flex-col items-center w-full">
+      {/* Structured data for blog posts */}
+      {blogPostSchemas && blogPostSchemas.map((schema, index) => (
+        <JsonLd key={index} data={schema} />
+      ))}
+      
+      {/* Hero Section */}
+      <section className="w-full flex flex-col items-center pt-12 pb-8">
+        <h1 className="text-4xl md:text-5xl font-bold text-mwg-accent mb-2 text-center">
+          {pageContent.hero?.title || "Motion Wealth Group"}
+        </h1>
+        <p className="text-lg md:text-xl text-mwg-muted mb-6 text-center max-w-2xl">
+          {pageContent.hero?.subtitle || "Building wealth through strategic investment insights"}
+        </p>
+        <div className="flex gap-4 mb-8">
+          <Link href="/resources">
+            <button className="bg-mwg-accent text-mwg-dark font-semibold px-6 py-2 rounded-md shadow hover:brightness-110 transition">
+              {pageContent.hero?.buttonText || "Learn More"}
+            </button>
+          </Link>
+          <Link href="/contact">
+            <button className="bg-mwg-card text-mwg-accent font-semibold px-6 py-2 rounded-md border border-mwg-accent hover:bg-mwg-accent hover:text-mwg-dark transition">
+              Get in Touch
+            </button>
+          </Link>
+        </div>
+      </section>
+      
+      {/* About Section */}
+      <section className="w-full flex flex-col items-center py-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
+          <span className="text-mwg-accent">About</span> {pageContent.about?.title?.split(' ').slice(1).join(' ') || "Motion Wealth Group"}
         </h2>
-      </div>
-      <div>
-        <h1 className="text-6xl font-bold text-center">Make anything you imagine 🪄</h1>
-        <h2 className="text-2xl text-center font-light text-gray-500 pt-4">
-          This whole page will be replaced when you run your template path.
-        </h2>
-      </div>
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="border rounded-lg p-6 hover:bg-gray-100 transition-colors">
-          <h3 className="text-xl font-semibold">AI Chat App</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            An intelligent conversational app powered by AI models, featuring real-time responses
-            and seamless integration with Next.js and various AI providers.
-          </p>
+        <div className="bg-mwg-card border border-mwg-border rounded-lg p-6 max-w-2xl text-mwg-muted text-base shadow-md">
+          <p className="mb-4">{pageContent.about?.content || defaultContent.about.content}</p>
+          <p className="mb-4">Markets can be hard to understand with too much information. We make things simple with clear analysis and useful tips. We use our experience and skills to help you make better trading decisions.</p>
+          <p className="mb-4">We help both new and skilled traders. Motion Wealth Group gives you the tools and advice you need to reach your money goals. We focus on growth and steady progress.</p>
+          <div>
+            <h3 className="font-semibold text-mwg-accent mb-2">Our Core Values</h3>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1 text-sm list-none">
+              {(pageContent.about?.values || defaultContent.about.values).map((value: string, idx: number) => (
+                <li key={idx} className="flex items-center gap-2">
+                  <span className="text-mwg-accent">●</span> {value}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <div className="border rounded-lg p-6 hover:bg-gray-100 transition-colors">
-          <h3 className="text-xl font-semibold">AI Image Generation App</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Create images from text prompts using AI, powered by the Replicate API and Next.js.
-          </p>
+      </section>
+      
+      {/* Latest Insights Section */}
+      <section className="w-full max-w-6xl mx-auto py-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">
+            <span className="text-mwg-text">Latest</span> <span className="text-mwg-accent">Insights</span>
+          </h2>
+          <Link href="/blog" className="text-mwg-accent font-medium hover:underline flex items-center gap-1">
+            View All <span>→</span>
+          </Link>
         </div>
-        <div className="border rounded-lg p-6 hover:bg-gray-100 transition-colors">
-          <h3 className="text-xl font-semibold">Social Media App</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            A feature-rich social platform with user profiles, posts, and interactions using
-            Firebase and Next.js.
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {recentPosts.length > 0 ? (
+            recentPosts.map(post => (
+              <BlogPostCard key={post.id} post={post} />
+            ))
+          ) : (
+            <div className="col-span-2 py-8 text-center text-mwg-muted">
+              No blog posts available at the moment. Check back soon!
+            </div>
+          )}
         </div>
-        <div className="border rounded-lg p-6 hover:bg-gray-100 transition-colors">
-          <h3 className="text-xl font-semibold">Voice Notes App</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            A voice-based note-taking app with real-time transcription using Deepgram API, 
-            Firebase integration for storage, and a clean, simple interface built with Next.js.
+      </section>
+      
+      {/* CTA Section */}
+      <section className="w-full py-12 bg-gradient-to-br from-mwg-accent/20 to-transparent rounded-lg">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            {pageContent.cta?.title || "Ready to Accelerate Your Trading Journey?"}
+          </h2>
+          <p className="text-mwg-muted text-lg mb-6 max-w-2xl mx-auto">
+            {pageContent.cta?.content || "Connect with Motion Wealth Group for personalized insights and resources to help you achieve your financial goals."}
           </p>
+          <Link href="/contact">
+            <button className="bg-mwg-accent text-mwg-dark font-semibold px-8 py-3 rounded-md shadow-lg hover:brightness-110 transition">
+              Contact Us Today
+            </button>
+          </Link>
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }

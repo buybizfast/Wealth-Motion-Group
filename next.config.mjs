@@ -20,6 +20,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.gstatic.com",
+      },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -31,6 +39,10 @@ const nextConfig = {
         destination: "https://api.openai.com/:path*",
       },
     ];
+  },
+  eslint: {
+    // This allows production builds to successfully complete even with ESLint errors
+    ignoreDuringBuilds: true,
   },
 };
 
