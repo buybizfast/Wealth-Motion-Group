@@ -13,3 +13,27 @@ This doesn't really matter, but is useful for the AI to understand more about th
 - TailwindCSS
 - Firebase Auth, Storage, and Database
 - Multiple AI endpoints including OpenAI, Anthropic, and Replicate using Vercel's AI SDK
+
+## Admin Dashboard Security
+
+The admin dashboard is protected by a server-side middleware that ensures only authorized emails can access it. Follow these steps to set up proper admin authentication:
+
+1. Create a Firebase service account:
+   - Go to Firebase Console > Project Settings > Service Accounts
+   - Click "Generate new private key"
+   - Save the JSON file securely
+
+2. Add the following environment variables to your `.env.local` file:
+   ```
+   # Firebase Admin SDK (Server-only variables)
+   FIREBASE_PROJECT_ID=your-project-id
+   FIREBASE_CLIENT_EMAIL=your-service-account-email
+   FIREBASE_PRIVATE_KEY="your-private-key-with-quotes-intact"
+   ```
+
+3. Configure allowed admin emails:
+   - Open `src/middleware.ts` and update the `ADMIN_EMAILS` array with the email addresses allowed to access the admin dashboard
+
+4. Deploy your application with these environment variables set in your hosting platform (Vercel, etc.)
+
+These measures ensure that only authenticated users with specific email addresses can access the admin routes on both the client and server sides.
