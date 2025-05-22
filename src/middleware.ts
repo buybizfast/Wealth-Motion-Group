@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin SDK if not already initialized
-if (!getApps().length) {
+if (!admin.apps.length) {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY 
     ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') 
     : undefined;
     
-  initializeApp({
-    credential: cert({
+  admin.initializeApp({
+    credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey
@@ -36,10 +35,10 @@ export async function middleware(req: NextRequest) {
 
     try {
       // Verify the session cookie
-      const decodedClaims = await getAuth().verifySessionCookie(sessionCookie, true);
+      const decodedClaims = await admin.auth().verifySessionCookie(sessionCookie, true);
       
       // Get the user by UID
-      const user = await getAuth().getUser(decodedClaims.uid);
+      const user = await admin.auth().getUser(decodedClaims.uid);
       
       // Check if the user's email is in the allowed admin emails list
       if (user.email && ADMIN_EMAILS.includes(user.email)) {
