@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     console.log('Admin emails:', ADMIN_EMAILS);
     
     // Check if we're in development mode and allowing all emails
-    if (process.env.NODE_ENV === 'development' && ADMIN_EMAILS.includes("*")) {
+    if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev') && ADMIN_EMAILS.includes("*")) {
       console.log('Development mode: treating all users as admins');
       return NextResponse.json({ isAdmin: true });
     }
@@ -43,7 +43,22 @@ export async function GET(req: NextRequest) {
     if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
       // User is authorized as admin
       console.log('User is authorized as admin');
-      return NextResponse.json({ isAdmin: true });
+      
+      // Create a successful response with the user's admin status
+      const response = NextResponse.json({ isAdmin: true });
+      
+      // Make sure the session cookie is properly set in the response
+      response.cookies.set({
+        name: 'admin_status',
+        value: 'true',
+        maxAge: 60 * 60, // 1 hour
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'strict'
+      });
+      
+      return response;
     } else {
       // User is signed in but not authorized as admin
       console.log('User is not authorized as admin');

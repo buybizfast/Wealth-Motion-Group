@@ -16,11 +16,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isVerifying, setIsVerifying] = useState(true);
   
   useEffect(() => {
-    // TEMPORARY FIX: Always allow access to the admin dashboard
-    console.log('TEMPORARY: Bypassing admin check in layout to restore functionality');
-    setIsVerifying(false);
-    
-    /* Original admin check logic commented out for now
     // Check if the user is authenticated and is an admin
     const checkAdmin = async () => {
       if (loading) return;
@@ -39,7 +34,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         
         // Also verify with the server
         try {
-          const response = await fetch('/api/auth/check-admin');
+          const response = await fetch('/api/auth/check-admin', {
+            cache: 'no-store', // Prevent caching issues
+            credentials: 'same-origin' // Ensure credentials are sent with the request
+          });
           const data = await response.json();
           
           if (data.isAdmin) {
@@ -47,11 +45,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             setIsVerifying(false);
           } else {
             console.log('Server rejected admin status');
-            router.push('/');
+            // In development, don't redirect to make debugging easier
+            if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
+              console.log('Development mode: proceeding despite admin rejection');
+              setIsVerifying(false);
+            } else {
+              router.push('/');
+            }
           }
         } catch (error) {
           console.error('Error verifying admin status with server:', error);
-          router.push('/');
+          // In development, don't redirect to make debugging easier
+          if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
+            console.log('Development mode: proceeding despite error');
+            setIsVerifying(false);
+          } else {
+            router.push('/');
+          }
         }
       } else {
         // Not an admin, redirect to home
@@ -61,8 +71,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     };
     
     checkAdmin();
-    */
-  }, []);
+  }, [user, loading, router]);
   
   if (loading || isVerifying) {
     return (

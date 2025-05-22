@@ -614,22 +614,17 @@ export default function AdminDashboard() {
     });
   };
 
-  // TEMPORARY: Remove authentication checks to restore admin functionality
-  /* Original auth checks commented out for now
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (!user) return <div className="p-8 text-center">Please sign in as admin to access the dashboard.</div>;
   if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
     return <div className="p-8 text-center text-red-600">You do not have admin access.</div>;
   }
-  */
-
-  console.log('TEMPORARY: Bypassing AdminDashboard auth checks to restore functionality');
 
   return (
     <div className="max-w-6xl mx-auto">
-      {false ? ( // Changed from loading condition to always show the dashboard
+      {loading ? (
         <div className="text-center">Loading...</div>
-      ) : true ? ( // Changed from user check to always return true
+      ) : user && ADMIN_EMAILS.includes(user.email || "") ? (
         <div>
           <div className="flex mb-4 space-x-2">
             <button 

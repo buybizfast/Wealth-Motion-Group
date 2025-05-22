@@ -18,7 +18,6 @@ export default function AdminPage() {
     }
   }, [user, loading]);
 
-  // TEMPORARY: Show loading indicator but always render the dashboard to restore functionality
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -27,7 +26,6 @@ export default function AdminPage() {
     );
   }
   
-  /* Original auth check commented out for now
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -38,7 +36,6 @@ export default function AdminPage() {
       </div>
     );
   }
-  */
 
   return (
     <div className="flex flex-col items-center w-full">
