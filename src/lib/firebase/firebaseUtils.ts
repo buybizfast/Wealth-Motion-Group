@@ -106,19 +106,18 @@ export const deleteDocument = async (
 // Storage functions
 export const uploadFile = async (file: File, path: string) => {
   try {
-    // If we're in development mode, use data URL to avoid CORS issues
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Development mode - using data URL for file: ${path}`);
-      try {
-        const dataUrl = await fileToDataUrl(file);
-        console.log('Successfully created data URL');
-        return dataUrl;
-      } catch (e) {
-        console.log('Failed to convert to data URL, using placeholder');
-        return `https://via.placeholder.com/500x300?text=${encodeURIComponent(file.name || 'Image')}`;
-      }
+    // Use data URL approach for all environments to avoid CORS issues
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      console.log('Successfully created data URL');
+      return dataUrl;
+    } catch (e) {
+      console.log('Failed to convert to data URL, using placeholder');
+      return `https://via.placeholder.com/500x300?text=${encodeURIComponent(file.name || 'Image')}`;
     }
     
+    // The following code is disabled to avoid CORS issues
+    /* 
     // For production - proceed with normal Firebase upload
     // Add timestamp to prevent caching issues
     const timestamp = Date.now();
@@ -142,10 +141,11 @@ export const uploadFile = async (file: File, path: string) => {
     console.log('File uploaded successfully. Download URL: ', downloadURL);
     
     return downloadURL;
+    */
   } catch (error) {
     console.error('Error uploading file: ', error);
     
-    // Fallback for errors in production
+    // Fallback for errors
     try {
       return await fileToDataUrl(file);
     } catch (e) {

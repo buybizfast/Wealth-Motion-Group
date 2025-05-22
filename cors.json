@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["https://www.motionwealthgroup.com", "https://motionwealthgroup.com", "http://localhost:3010"],
+    "origin": ["https://www.motionwealthgroup.com", "https://motionwealthgroup.com", "http://localhost:3010", "https://wealth-motion-group.vercel.app"],
     "method": ["GET", "PUT", "POST", "DELETE", "HEAD"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent", "X-Requested-With"]
