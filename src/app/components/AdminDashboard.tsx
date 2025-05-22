@@ -1134,7 +1134,7 @@ export default function AdminDashboard() {
               {content.map((item) => (
                 <div key={item.id} className="bg-white p-6 rounded-lg shadow-md">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold capitalize">{item.pageName} Page</h3>
+                    <h3 className="inline-block px-4 py-1 bg-red-200 text-black font-bold rounded-md">{item.pageName} Page</h3>
                     <button
                       onClick={() => handleContentSave(item.id)}
                       className="px-4 py-2 bg-mwg-accent text-white rounded hover:bg-mwg-accent/80"
