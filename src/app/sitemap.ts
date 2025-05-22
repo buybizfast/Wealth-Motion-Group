@@ -32,9 +32,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as ChangeFrequency,
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as ChangeFrequency,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/terms-of-service`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as ChangeFrequency,
+      priority: 0.5,
+    },
   ];
   
-  // Get dynamic blog routes
+  // For production, we would get dynamic routes from the database
+  // Since this is causing issues during build, we'll just return static routes for now
+  return staticRoutes;
+  
+  /* 
+  // Get dynamic blog routes - temporarily disabled due to build issues
   let blogRoutes: MetadataRoute.Sitemap = [];
   try {
     const posts = await getDocuments('blogPosts');
@@ -64,4 +81,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   // Combine all routes
   return [...staticRoutes, ...blogRoutes, ...resourceRoutes];
+  */
 } 

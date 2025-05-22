@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect } from 'react';
+import { Suspense } from 'react';
 
 interface MetadataManagerProps {
   title?: string;
@@ -22,7 +23,15 @@ interface MetadataManagerProps {
  * Note: Most SEO metadata should be defined in layout.tsx or page.tsx metadata export
  * This component is for client-side metadata that can't be set in static metadata
  */
-export default function MetadataManager({
+export default function MetadataManager(props: MetadataManagerProps) {
+  return (
+    <Suspense fallback={null}>
+      <MetadataManagerInner {...props} />
+    </Suspense>
+  );
+}
+
+function MetadataManagerInner({
   title,
   description,
   ogImage,
