@@ -21,15 +21,36 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       if (loading) return;
       
       if (!user) {
+        console.log('No user found, redirecting to home');
         router.push('/');
         return;
       }
       
-      // Check if user email is in the admin list
-      if (user.email && ADMIN_EMAILS.includes(user.email)) {
-        setIsVerifying(false);
+      console.log('Checking admin status for user:', user.email);
+      
+      // Check if user email is in the admin list (case insensitive)
+      if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
+        console.log('User is authorized as admin on client-side');
+        
+        // Also verify with the server
+        try {
+          const response = await fetch('/api/auth/check-admin');
+          const data = await response.json();
+          
+          if (data.isAdmin) {
+            console.log('Server confirmed admin status');
+            setIsVerifying(false);
+          } else {
+            console.log('Server rejected admin status');
+            router.push('/');
+          }
+        } catch (error) {
+          console.error('Error verifying admin status with server:', error);
+          router.push('/');
+        }
       } else {
         // Not an admin, redirect to home
+        console.log('User is not an admin, redirecting to home');
         router.push('/');
       }
     };

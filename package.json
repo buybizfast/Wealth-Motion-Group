@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy-rules": "node deploy-firebase-rules.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.48",

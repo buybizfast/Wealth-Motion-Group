@@ -11,9 +11,36 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/', req.url));
     }
     
-    // We'll let the client-side handle the actual permission check
-    // This allows us to check if the user is an admin without using firebase-admin in middleware
-    // The actual admin check will happen in the /admin page component
+    // Call the admin check API to verify if the user is an admin
+    try {
+      // Get the absolute URL for the admin check API
+      const protocol = req.nextUrl.protocol;
+      const host = req.headers.get('host') || '';
+      const adminCheckUrl = `${protocol}//${host}/api/auth/check-admin`;
+      
+      // Call the API with the session cookie
+      const response = await fetch(adminCheckUrl, {
+        headers: {
+          Cookie: `session=${sessionCookie}`
+        }
+      });
+      
+      if (!response.ok) {
+        // Not an admin, redirect to home page
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+      
+      const data = await response.json();
+      
+      if (!data.isAdmin) {
+        // Not an admin, redirect to home page
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      // If there's an error, redirect to home page
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   // For all routes, continue as normal

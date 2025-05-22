@@ -28,12 +28,17 @@ export async function GET(req: NextRequest) {
     // Get the user by UID
     const user = await admin.auth().getUser(decodedClaims.uid);
     
-    // Check if the user's email is in the allowed admin emails list
-    if (user.email && ADMIN_EMAILS.includes(user.email)) {
+    console.log('Checking admin status for user:', user.email);
+    console.log('Admin emails:', ADMIN_EMAILS);
+    
+    // Case-insensitive check if the user's email is in the allowed admin emails list
+    if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
       // User is authorized as admin
+      console.log('User is authorized as admin');
       return NextResponse.json({ isAdmin: true });
     } else {
       // User is signed in but not authorized as admin
+      console.log('User is not authorized as admin');
       return NextResponse.json({ isAdmin: false }, { status: 403 });
     }
   } catch (error) {
