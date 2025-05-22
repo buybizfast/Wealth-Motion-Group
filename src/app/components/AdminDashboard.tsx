@@ -642,11 +642,17 @@ export default function AdminDashboard() {
     });
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <div className="p-8 text-center">Loading dashboard content...</div>;
   if (!user) return <div className="p-8 text-center">Please sign in as admin to access the dashboard.</div>;
+  
+  // DIRECTLY CHECK ADMIN STATUS WITHOUT API CALLS
   if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
+    console.log("AdminDashboard - Access denied for non-admin:", user.email);
     return <div className="p-8 text-center text-red-600">You do not have admin access.</div>;
   }
+  
+  // Force admin access if they have a valid email
+  console.log("AdminDashboard - Admin access granted to:", user.email);
 
   return (
     <div className="w-full max-w-6xl mx-auto">
@@ -703,7 +709,71 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Rest of the component rendering based on tab... */}
+      {/* Blog tab */}
+      {tab === "blog" && !dataLoading && (
+        <div>
+          {actionSuccess && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+              <p>{actionSuccess}</p>
+            </div>
+          )}
+          
+          {actionError && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{actionError}</p>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{editId ? "Edit Blog Post" : "Add New Blog Post"}</h2>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleInitializeBlogPosts}
+            >
+              Add Sample Posts
+            </button>
+          </div>
+          
+          {/* Blog form would go here */}
+          
+          <h2 className="text-xl font-bold mt-8 mb-4">Existing Blog Posts</h2>
+          {posts.length === 0 ? (
+            <p className="text-gray-500">No blog posts yet. Add your first post above or click "Add Sample Posts".</p>
+          ) : (
+            <div className="space-y-4">
+              {/* Blog posts would be listed here */}
+              <p>Found {posts.length} blog posts</p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Resources tab */}
+      {tab === "resources" && !dataLoading && (
+        <div>
+          <h2 className="text-xl font-bold mb-4">Resources</h2>
+          {/* Resources content would go here */}
+          <p>Resources management section</p>
+        </div>
+      )}
+      
+      {/* Content tab */}
+      {tab === "content" && !dataLoading && (
+        <div>
+          <h2 className="text-xl font-bold mb-4">Page Content</h2>
+          {/* Page content editing would go here */}
+          <p>Page content management section</p>
+        </div>
+      )}
+      
+      {/* Settings tab */}
+      {tab === "settings" && !dataLoading && (
+        <div>
+          <h2 className="text-xl font-bold mb-4">Site Settings</h2>
+          {/* Settings content would go here */}
+          <p>Site settings management section</p>
+        </div>
+      )}
     </div>
   );
 } 

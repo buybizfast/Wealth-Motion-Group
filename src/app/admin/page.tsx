@@ -20,25 +20,26 @@ export default function AdminPage() {
   // Check if user is an admin
   useEffect(() => {
     if (loading) {
-      console.log("Auth loading...");
+      console.log("Admin page - Auth loading...");
       return;
     }
     
     if (!user) {
-      console.log("No user authenticated");
+      console.log("Admin page - No user authenticated");
       setCheckingAdmin(false);
       return;
     }
     
-    console.log("User authenticated:", user.email);
+    console.log("Admin page - User authenticated:", user.email);
     
-    // Check if user email is in allowed admin emails
+    // Check if user email is in allowed admin emails - DIRECT CLIENT-SIDE CHECK ONLY
     if (user.email && ADMIN_EMAILS.includes(user.email)) {
-      console.log("User is an admin - displaying dashboard");
+      console.log("Admin page - User is an admin - displaying dashboard");
+      // Force set admin to true with no API calls
       setIsAdmin(true);
       setCheckingAdmin(false);
     } else {
-      console.log("User is not an admin");
+      console.log("Admin page - User is not an admin");
       setIsAdmin(false);
       setCheckingAdmin(false);
       // Redirect to home if not an admin after a short delay
@@ -48,10 +49,18 @@ export default function AdminPage() {
     }
   }, [user, loading, router]);
 
+  // Debug additional render check to make sure we're not leaving unexpectedly
+  useEffect(() => {
+    if (isAdmin) {
+      console.log("Admin page - Admin authenticated and ready to display dashboard");
+    }
+  }, [isAdmin]);
+
   if (loading || checkingAdmin) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mwg-accent"></div>
+        <p className="ml-4">Loading admin dashboard...</p>
       </div>
     );
   }
@@ -79,9 +88,11 @@ export default function AdminPage() {
     );
   }
 
+  // We are explicitly NOT making any API calls to check admin status
   return (
     <div className="flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Admin Dashboard</h1>
+      <p className="mb-8 text-gray-600">Welcome, {user.email}</p>
       <AdminDashboard />
     </div>
   );

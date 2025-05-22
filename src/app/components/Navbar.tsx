@@ -31,7 +31,7 @@ export default function Navbar() {
   useEffect(() => {
     if (user && user.email) {
       const isAdminUser = ADMIN_EMAILS.includes(user.email);
-      console.log(`Checking admin status for ${user.email}: ${isAdminUser ? 'Admin' : 'Not Admin'}`);
+      console.log(`Navbar - Checking admin status for ${user.email}: ${isAdminUser ? 'Admin' : 'Not Admin'}`);
       setIsAdmin(isAdminUser);
     } else {
       setIsAdmin(false);
@@ -65,9 +65,12 @@ export default function Navbar() {
   };
 
   const handleAdminClick = (e: React.MouseEvent) => {
-    console.log("Admin dashboard link clicked");
+    console.log("Admin dashboard link clicked - navigating directly to /admin");
     setShowAdminMenu(false);
-    // No preventDefault - let the Link component handle navigation
+    // Router navigation instead of Link to ensure we're not doing any unnecessary checks
+    router.push("/admin");
+    // Prevent default behavior to avoid any Link component handling
+    e.preventDefault();
   };
 
   return (
@@ -115,13 +118,12 @@ export default function Navbar() {
                     Signed in as {user.email}
                   </div>
                   {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
+                    <button
                       onClick={handleAdminClick}
+                      className="block w-full text-left px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
                     >
                       Admin Dashboard
-                    </Link>
+                    </button>
                   )}
                   <button
                     onClick={handleSignOut}
