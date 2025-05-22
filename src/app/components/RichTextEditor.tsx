@@ -37,8 +37,8 @@ export default function RichTextEditor({ value, onChange, height = 500 }: RichTe
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            style={{ height: `${height}px` }}
-            className="w-full p-4 bg-white text-gray-800 font-mono text-sm border-0 focus:outline-none focus:ring-0"
+            style={{ height: `${height}px`, color: 'black' }}
+            className="w-full p-4 bg-white text-black font-mono text-sm border-0 focus:outline-none focus:ring-0"
             placeholder="Enter HTML content here. You can use tags like <h1>, <p>, <strong>, etc."
           />
         </div>

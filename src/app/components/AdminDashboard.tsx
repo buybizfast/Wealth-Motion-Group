@@ -709,7 +709,8 @@ export default function AdminDashboard() {
               <label htmlFor="desc" className="block text-gray-700 font-medium mb-2">Short Description *</label>
               <textarea
                 id="desc"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mwg-accent text-black"
+                style={{ color: 'black' }}
                 rows={3}
                 value={form.desc}
                 onChange={(e) => setForm({ ...form, desc: e.target.value })}
