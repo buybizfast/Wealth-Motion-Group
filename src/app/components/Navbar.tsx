@@ -88,9 +88,12 @@ export default function Navbar() {
               {/* Admin Dropdown Menu */}
               {user && showAdminMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg z-50">
+                  <div className="py-1 border-b border-gray-200 px-4 text-xs text-gray-500">
+                    Signed in as {user.email}
+                  </div>
                   <Link
                     href="/admin"
-                    className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10"
+                    className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
                     onClick={() => setShowAdminMenu(false)}
                   >
                     Admin Dashboard

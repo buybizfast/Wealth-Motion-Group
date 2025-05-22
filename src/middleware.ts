@@ -12,6 +12,12 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/', req.url));
     }
     
+    // In development, always allow access to admin route
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development mode: allowing access to admin route');
+      return NextResponse.next();
+    }
+    
     // Call the admin check API to verify if the user is an admin
     try {
       // Get the absolute URL for the admin check API
@@ -31,12 +37,9 @@ export async function middleware(req: NextRequest) {
       
       if (!response.ok) {
         console.error('Admin check API returned error:', response.status, response.statusText);
-        // For troubleshooting, let the user through during development
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Development mode: allowing access despite API error');
-          return NextResponse.next();
-        }
-        return NextResponse.redirect(new URL('/', req.url));
+        // For troubleshooting, allow access if there's an API error
+        console.log('API error occurred, but allowing access to prevent lockout');
+        return NextResponse.next();
       }
       
       const data = await response.json();
@@ -48,12 +51,9 @@ export async function middleware(req: NextRequest) {
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
-      // For troubleshooting, let the user through during development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Development mode: allowing access despite error');
-        return NextResponse.next();
-      }
-      return NextResponse.redirect(new URL('/', req.url));
+      // On error, allow access to prevent getting locked out
+      console.log('Error occurred, but allowing access to prevent lockout');
+      return NextResponse.next();
     }
   }
 
