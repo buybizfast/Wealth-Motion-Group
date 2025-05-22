@@ -30,7 +30,9 @@ export default function Navbar() {
   
   useEffect(() => {
     if (user && user.email) {
-      setIsAdmin(ADMIN_EMAILS.includes(user.email));
+      const isAdminUser = ADMIN_EMAILS.includes(user.email);
+      console.log(`Checking admin status for ${user.email}: ${isAdminUser ? 'Admin' : 'Not Admin'}`);
+      setIsAdmin(isAdminUser);
     } else {
       setIsAdmin(false);
     }
@@ -60,6 +62,12 @@ export default function Navbar() {
     } catch (err: any) {
       setError(err.message || "Failed to sign out");
     }
+  };
+
+  const handleAdminClick = (e: React.MouseEvent) => {
+    console.log("Admin dashboard link clicked");
+    setShowAdminMenu(false);
+    // No preventDefault - let the Link component handle navigation
   };
 
   return (
@@ -110,7 +118,7 @@ export default function Navbar() {
                     <Link
                       href="/admin"
                       className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={handleAdminClick}
                     >
                       Admin Dashboard
                     </Link>

@@ -34,7 +34,7 @@ export default function AdminPage() {
     
     // Check if user email is in allowed admin emails
     if (user.email && ADMIN_EMAILS.includes(user.email)) {
-      console.log("User is an admin");
+      console.log("User is an admin - displaying dashboard");
       setIsAdmin(true);
       setCheckingAdmin(false);
     } else {
@@ -80,7 +80,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Admin Dashboard</h1>
       <AdminDashboard />
     </div>

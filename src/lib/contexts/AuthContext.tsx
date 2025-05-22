@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, getIdToken } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, getIdToken, onAuthStateChanged } from "firebase/auth";
 import { User } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 
@@ -24,47 +24,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    console.log("Setting up auth state listener");
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("Auth state changed:", user ? `User: ${user.email}` : "No user");
       setUser(user);
       
       if (user) {
-        // When user signs in, get their ID token and create a session
         try {
-          const idToken = await getIdToken(user);
-          await createSession(idToken);
+          // Skip session creation for now as it's causing issues
+          console.log("User authenticated:", user.email);
         } catch (error) {
-          console.error("Error creating session:", error);
+          console.error("Error handling auth state:", error);
         }
+      } else {
+        console.log("No user is signed in");
       }
       
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("Cleaning up auth state listener");
+      unsubscribe();
+    };
   }, []);
 
-  // Create a session using the Firebase ID token
+  // Create a session using the Firebase ID token - skipping for now
   const createSession = async (idToken: string) => {
     try {
-      await fetch('/api/auth/session', {
+      console.log("Attempting to create session");
+      const response = await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ idToken }),
       });
+      
+      if (!response.ok) {
+        console.error("Session creation failed:", response.status);
+        return;
+      }
+      
+      console.log("Session created successfully");
     } catch (error) {
       console.error("Error creating session:", error);
-      throw error;
     }
   };
 
-  // Clear the session when signing out
+  // Clear the session when signing out - skipping for now
   const clearSession = async () => {
     try {
-      await fetch('/api/auth/session', {
+      console.log("Attempting to clear session");
+      const response = await fetch('/api/auth/session', {
         method: 'DELETE',
       });
+      
+      if (!response.ok) {
+        console.error("Session clearing failed:", response.status);
+        return;
+      }
+      
+      console.log("Session cleared successfully");
     } catch (error) {
       console.error("Error clearing session:", error);
     }
@@ -73,12 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      console.log("Attempting to sign in with Google");
       const result = await signInWithPopup(auth, provider);
       
       // After successful sign-in, create a session
       if (result.user) {
-        const idToken = await getIdToken(result.user);
-        await createSession(idToken);
+        console.log("Google sign-in successful:", result.user.email);
+        // Skip for now
+        // const idToken = await getIdToken(result.user);
+        // await createSession(idToken);
       }
     } catch (error) {
       console.error("Error signing in with Google", error);
@@ -88,10 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOutUser = async () => {
     try {
-      // Clear the session before signing out
-      await clearSession();
+      console.log("Attempting to sign out");
+      // Skip for now
+      // await clearSession();
       await firebaseSignOut(auth);
       setUser(null);
+      console.log("Sign out successful");
     } catch (error) {
       console.error("Error signing out", error);
       throw error;

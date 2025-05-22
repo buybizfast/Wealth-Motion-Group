@@ -139,6 +139,7 @@ export default function AdminDashboard() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [dataLoading, setDataLoading] = useState<boolean>(false);
+  const [dataError, setDataError] = useState<string | null>(null);
   const [form, setForm] = useState<BlogPost>({ title: "", desc: "", content: "", category: "", date: "", img: null });
   const [resourceForm, setResourceForm] = useState<Resource>({ 
     category: "", 
@@ -166,6 +167,11 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("AdminDashboard mounted, current tab:", tab);
+    
+    // Clear any previous errors
+    setDataError(null);
+    
     if (tab === "blog") {
       fetchPosts();
     } else if (tab === "content") {
@@ -197,8 +203,13 @@ export default function AdminDashboard() {
 
   const fetchPosts = async () => {
     setDataLoading(true);
+    setDataError(null);
+    
+    console.log("Fetching blog posts...");
     try {
       const docs = await getDocuments(BLOG_COLLECTION);
+      console.log("Blog posts fetched:", docs.length);
+      
       const typedDocs: BlogPost[] = docs.map((doc: any) => ({
         id: doc.id,
         title: doc.title || "",
@@ -217,8 +228,9 @@ export default function AdminDashboard() {
       
       setCategories(uniqueCategories);
     } catch (error) {
-      setActionError("Failed to fetch blog posts");
       console.error("Error fetching posts:", error);
+      setDataError("Failed to fetch blog posts. Please try refreshing the page.");
+      setActionError("Failed to fetch blog posts");
     } finally {
       setDataLoading(false);
     }
@@ -226,8 +238,13 @@ export default function AdminDashboard() {
 
   const fetchContent = async () => {
     setDataLoading(true);
+    setDataError(null);
+    
+    console.log("Fetching page content...");
     try {
       const docs = await getDocuments(CONTENT_COLLECTION);
+      console.log("Page content fetched:", docs.length);
+      
       // Check if we have content for all pages
       const pageNames: PageTemplateKey[] = ["home", "resources", "contact"];
       const existingPages = new Set(docs.map((doc: any) => doc.pageName));
@@ -243,8 +260,9 @@ export default function AdminDashboard() {
       const updatedDocs = await getDocuments(CONTENT_COLLECTION);
       setContent(updatedDocs as PageContent[]);
     } catch (error) {
-      setActionError("Failed to fetch page content");
       console.error("Error fetching content:", error);
+      setDataError("Failed to fetch page content. Please try refreshing the page.");
+      setActionError("Failed to fetch page content");
     } finally {
       setDataLoading(false);
     }
@@ -252,8 +270,13 @@ export default function AdminDashboard() {
 
   const fetchResources = async () => {
     setDataLoading(true);
+    setDataError(null);
+    
+    console.log("Fetching resources...");
     try {
       const docs = await getDocuments(RESOURCES_COLLECTION);
+      console.log("Resources fetched:", docs.length);
+      
       const typedDocs: Resource[] = docs.map((doc: any) => ({
         id: doc.id,
         category: doc.category || "",
@@ -265,8 +288,9 @@ export default function AdminDashboard() {
       }));
       setResources(typedDocs);
     } catch (error) {
-      setActionError("Failed to fetch resources");
       console.error("Error fetching resources:", error);
+      setDataError("Failed to fetch resources. Please try refreshing the page.");
+      setActionError("Failed to fetch resources");
     } finally {
       setDataLoading(false);
     }
@@ -274,6 +298,9 @@ export default function AdminDashboard() {
 
   const fetchSiteSettings = async () => {
     setFooterLogoLoading(true);
+    setDataError(null);
+    
+    console.log("Fetching site settings...");
     try {
       // Use the existing getDocument function from firebaseUtils
       const data = await getDocument(SITE_SETTINGS_COLLECTION, "footerLogo") as SiteSettings | null;
@@ -286,6 +313,7 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Error fetching site settings:", error);
+      setDataError("Failed to load site settings. Please try refreshing the page.");
       setActionError("Failed to load site settings");
     } finally {
       setFooterLogoLoading(false);
@@ -621,839 +649,61 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {loading ? (
-        <div className="text-center">Loading...</div>
-      ) : user && ADMIN_EMAILS.includes(user.email || "") ? (
-        <div>
-          <div className="flex mb-4 space-x-2">
-            <button 
-              className={`px-4 py-2 rounded-md transition-colors ${tab === "blog" ? "bg-mwg-accent text-white" : "bg-mwg-card text-mwg-text hover:bg-mwg-accent/20"}`} 
-              onClick={() => setTab("blog")}
-            >
-              Blog Management
-            </button>
-            <button 
-              className={`px-4 py-2 rounded-md transition-colors ${tab === "content" ? "bg-mwg-accent text-white" : "bg-mwg-card text-mwg-text hover:bg-mwg-accent/20"}`} 
-              onClick={() => setTab("content")}
-            >
-              Page Content
-            </button>
-            <button 
-              className={`px-4 py-2 rounded-md transition-colors ${tab === "resources" ? "bg-mwg-accent text-white" : "bg-mwg-card text-mwg-text hover:bg-mwg-accent/20"}`} 
-              onClick={() => setTab("resources")}
-            >
-              Resource Management
-            </button>
-            <button
-              className={`px-4 py-2 rounded-md transition-colors ${tab === "contact" ? "bg-mwg-accent text-white" : "bg-mwg-card text-mwg-text hover:bg-mwg-accent/20"}`}
-              onClick={() => setTab("contact")}
-            >
-              Contact Info
-            </button>
-            <button
-              className={`px-4 py-2 rounded-md transition-colors ${tab === "settings" ? "bg-mwg-accent text-white" : "bg-mwg-card text-mwg-text hover:bg-mwg-accent/20"}`}
-              onClick={() => setTab("settings")}
-            >
-              Site Settings
-            </button>
-          </div>
-          
-          {actionSuccess && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <span className="block sm:inline">{actionSuccess}</span>
-            </div>
-          )}
-          
-          {actionError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <span className="block sm:inline">{actionError}</span>
-            </div>
-          )}
-          
-          {dataLoading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-4 rounded-lg shadow-lg">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mwg-accent mx-auto"></div>
-                <p className="text-center mt-2 text-gray-700">Processing...</p>
-              </div>
-            </div>
-          )}
-          
-          {tab === "blog" ? (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold mb-4 text-mwg-text">{editId ? "Edit Blog Post" : "Add New Blog Post"}</h2>
-                <button
-                  className="bg-mwg-card text-mwg-accent border border-mwg-accent px-4 py-2 rounded-md hover:bg-mwg-accent/10 transition-colors"
-                  onClick={handleInitializeBlogPosts}
-                  disabled={isInitializingBlogPosts}
-                >
-                  {isInitializingBlogPosts ? "Adding Sample Posts..." : "Add Sample Blog Posts"}
-                </button>
-              </div>
-              <form id="blog-form" onSubmit={handleBlogSubmit} className="mb-8 space-y-4 bg-mwg-card p-6 rounded-lg shadow">
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Title</label>
-                  <input 
-                    type="text" 
-                    placeholder="Post title" 
-                    className="w-full p-2 border rounded bg-white text-gray-800" 
-                    value={form.title} 
-                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))} 
-                    required 
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Category</label>
-                    <select
-                      className="w-full p-2 border rounded bg-white text-gray-800"
-                      value={form.category}
-                      onChange={e => {
-                        const newCategory = e.target.value;
-                        setForm(f => ({ ...f, category: newCategory }));
-                      }}
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      {categories.length > 0 ? (
-                        categories.map(category => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))
-                      ) : (
-                        <option value="" disabled>No categories available</option>
-                      )}
-                    </select>
-                    <div className="text-xs text-mwg-muted mt-1">
-                      Available categories: {categories.length > 0 ? categories.join(', ') : 'None - add blog posts first'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Date</label>
-                    <input 
-                      type="date" 
-                      className="w-full p-2 border rounded bg-white text-gray-800" 
-                      value={form.date} 
-                      onChange={e => setForm(f => ({ ...f, date: e.target.value }))} 
-                      required 
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Description (Short summary for preview)</label>
-                  <textarea 
-                    placeholder="Short description" 
-                    className="w-full p-2 border rounded bg-white text-gray-800 min-h-32" 
-                    value={form.desc} 
-                    onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} 
-                    required 
-                    rows={3}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Full Article Content (HTML)</label>
-                  <p className="text-xs text-mwg-muted mb-2">Create rich content with HTML. Switch to Preview to see how it will look.</p>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    <button
-                      type="button"
-                      className="text-xs bg-mwg-card hover:bg-mwg-accent/20 text-mwg-accent px-2 py-1 rounded-md transition-colors"
-                      onClick={() => setForm(f => ({ 
-                        ...f, 
-                        content: (f.content || '') + '<h2>Heading</h2><p>Your paragraph text here.</p>' 
-                      }))}
-                    >
-                      Add Heading + Paragraph
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs bg-mwg-card hover:bg-mwg-accent/20 text-mwg-accent px-2 py-1 rounded-md transition-colors"
-                      onClick={() => setForm(f => ({ 
-                        ...f, 
-                        content: (f.content || '') + '<ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>' 
-                      }))}
-                    >
-                      Add List
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs bg-mwg-card hover:bg-mwg-accent/20 text-mwg-accent px-2 py-1 rounded-md transition-colors"
-                      onClick={() => setForm(f => ({ 
-                        ...f, 
-                        content: (f.content || '') + '<blockquote>Your quote or important text here.</blockquote>' 
-                      }))}
-                    >
-                      Add Quote
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs bg-mwg-card hover:bg-mwg-accent/20 text-mwg-accent px-2 py-1 rounded-md transition-colors"
-                      onClick={() => setForm(f => ({ 
-                        ...f, 
-                        content: (f.content || '') + '<img src="image-url.jpg" alt="Description" class="w-full rounded-lg" />' 
-                      }))}
-                    >
-                      Add Image
-                    </button>
-                  </div>
-                  <div className="mt-2 overflow-hidden">
-                    <RichTextEditor 
-                      value={form.content || ''} 
-                      onChange={(content) => setForm(f => ({ ...f, content }))} 
-                      height={400}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Featured Image</label>
-                  {typeof form.img === "string" && form.img && (
-                    <div className="mb-2">
-                      <img src={form.img} alt="Current image" className="h-32 object-cover rounded" />
-                      <p className="text-xs text-mwg-muted mt-1">Current image</p>
-                    </div>
-                  )}
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="w-full p-2 border rounded bg-white text-gray-800" 
-                    onChange={e => setForm(f => ({ ...f, img: (e.target as HTMLInputElement).files?.[0] || null }))} 
-                  />
-                  <div className="flex items-center mt-2 text-mwg-muted text-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>In development mode, image uploads will use a placeholder. Real uploads will work in production.</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 pt-2">
-                  <button 
-                    type="submit" 
-                    className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                    disabled={dataLoading}
-                  >
-                    {editId ? "Update Post" : "Add Post"}
-                  </button>
-                  
-                  {editId && (
-                    <button 
-                      type="button" 
-                      className="px-4 py-2 border border-mwg-muted text-mwg-muted rounded-md hover:bg-mwg-card/50" 
-                      onClick={() => { 
-                        setForm({ title: "", desc: "", content: "", category: "", date: "", img: null }); 
-                        setEditId(null);
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
-              
-              <h2 className="text-xl font-bold mb-4 text-mwg-text">Existing Blog Posts</h2>
-              {posts.length === 0 ? (
-                <p className="text-mwg-muted italic">No blog posts yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {posts.map(post => (
-                    <div key={post.id} className="bg-mwg-card border rounded-lg p-4 flex flex-col md:flex-row gap-4">
-                      {typeof post.img === "string" && post.img && (
-                        <div className="md:w-1/4">
-                          <img src={post.img} alt={post.title} className="w-full h-32 object-cover rounded-md" />
-                        </div>
-                      )}
-                      <div className={`${typeof post.img === "string" && post.img ? "md:w-3/4" : "w-full"}`}>
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-bold text-mwg-text text-lg">{post.title}</h3>
-                            <div className="text-xs text-mwg-muted mb-2">
-                              <span className="bg-mwg-accent/20 text-mwg-accent px-2 py-0.5 rounded-full">{post.category}</span> 
-                              <span className="ml-2">{post.date}</span>
-                              {post.content && (
-                                <span className="ml-2 bg-green-800/20 text-green-400 px-2 py-0.5 rounded-full">
-                                  Full Article
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button 
-                              className="text-blue-400 hover:text-blue-300 transition-colors" 
-                              onClick={() => handleEdit(post)}
-                            >
-                              Edit
-                            </button>
-                            {post.id && (
-                              <button 
-                                className="text-red-400 hover:text-red-300 transition-colors" 
-                                onClick={() => handleDelete(post.id!)}
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-mwg-muted">
-                          {post.desc.length > 150 ? `${post.desc.substring(0, 150)}...` : post.desc}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : tab === "content" ? (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-mwg-text">Page Content Sections</h2>
-                <button
-                  className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors"
-                  onClick={() => setShowNewContentForm(!showNewContentForm)}
-                >
-                  {showNewContentForm ? "Cancel" : "Add New Section"}
-                </button>
-              </div>
-              
-              {showNewContentForm && (
-                <form onSubmit={handleAddNewContent} className="mb-8 space-y-4 bg-mwg-card p-6 rounded-lg shadow">
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Page Name</label>
-                    <select 
-                      className="w-full p-2 border rounded bg-white text-gray-800" 
-                      value={newContent.pageName} 
-                      onChange={e => setNewContent({...newContent, pageName: e.target.value})}
-                      required
-                    >
-                      <option value="">Select a page</option>
-                      <option value="home">Home</option>
-                      <option value="resources">Resources</option>
-                      <option value="contact">Contact</option>
-                      <option value="custom">Custom Page</option>
-                    </select>
-                    {newContent.pageName === 'custom' && (
-                      <input 
-                        type="text" 
-                        placeholder="Custom page name" 
-                        className="w-full mt-2 p-2 border rounded bg-white text-gray-800" 
-                        value={newContent.customPageName || ''} 
-                        onChange={e => setNewContent({...newContent, customPageName: e.target.value, pageName: e.target.value})} 
-                        required 
-                      />
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Content (JSON format)</label>
-                    <textarea 
-                      placeholder="Content in JSON format" 
-                      className="w-full p-2 border rounded bg-white text-gray-800 min-h-32 font-mono" 
-                      value={typeof newContent.content === 'object' ? JSON.stringify(newContent.content, null, 2) : newContent.content || ''} 
-                      onChange={e => {
-                        try {
-                          // Try to parse as JSON
-                          const parsed = JSON.parse(e.target.value);
-                          setNewContent({...newContent, content: parsed});
-                        } catch {
-                          // If not valid JSON, store as string
-                          setNewContent({...newContent, content: e.target.value});
-                        }
-                      }} 
-                      required 
-                      rows={8}
-                    />
-                    <p className="text-xs text-mwg-muted mt-1">Enter content in JSON format or plain text.</p>
-                  </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                    disabled={dataLoading}
-                  >
-                    Add Content Section
-                  </button>
-                </form>
-              )}
-              
-              {content.length === 0 ? (
-                <p className="text-mwg-muted italic">No content sections defined yet.</p>
-              ) : (
-                <div className="space-y-6">
-                  {content.map(page => (
-                    <div key={page.id} className="bg-mwg-card border rounded-lg p-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg text-mwg-text">
-                          Page: <span className="text-mwg-accent capitalize">{page.pageName}</span>
-                        </h3>
-                        <div className="flex gap-2">
-                          {(page.pageName === 'home' || page.pageName === 'resources' || page.pageName === 'contact') && (
-                            <button
-                              className="text-blue-400 hover:text-blue-300 transition-colors"
-                              onClick={() => {
-                                // Reset to default template
-                                const pageName = page.pageName as PageTemplateKey;
-                                if (DEFAULT_PAGE_TEMPLATES[pageName]) {
-                                  handleContentEdit(page.id, 'content', JSON.stringify(DEFAULT_PAGE_TEMPLATES[pageName].sections, null, 2));
-                                }
-                              }}
-                              title="Reset to default template"
-                            >
-                              Reset
-                            </button>
-                          )}
-                          <button
-                            className="text-red-400 hover:text-red-300 transition-colors"
-                            onClick={() => handleDeleteContent(page.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="mb-2 text-sm">
-                        <span className="bg-mwg-accent/10 text-mwg-accent px-2 py-0.5 rounded-full">
-                          {typeof page.content === 'object' ? 'JSON Content' : 'Text Content'}
-                        </span>
-                      </div>
-                      
-                      <label className="block text-sm font-medium text-mwg-text mb-1">Content (JSON or text)</label>
-                      <textarea 
-                        className="w-full p-2 border rounded bg-white text-gray-800 mb-4 font-mono" 
-                        value={
-                          typeof contentEdit[page.id]?.content === 'string' 
-                            ? contentEdit[page.id].content 
-                            : typeof contentEdit[page.id]?.content === 'object'
-                              ? JSON.stringify(contentEdit[page.id].content, null, 2)
-                              : typeof page.content === 'object'
-                                ? JSON.stringify(page.content, null, 2)
-                                : page.content
-                        } 
-                        onChange={e => {
-                          try {
-                            // Try to parse as JSON
-                            const parsed = JSON.parse(e.target.value);
-                            handleContentEdit(page.id, 'content', parsed);
-                          } catch {
-                            // If not valid JSON, store as string
-                            handleContentEdit(page.id, 'content', e.target.value);
-                          }
-                        }} 
-                        rows={12}
-                      />
-                      
-                      <button 
-                        className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                        onClick={() => handleContentSave(page.id)} 
-                        disabled={dataLoading}
-                      >
-                        Save Changes
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : tab === "resources" ? (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold mb-4 text-mwg-text">{resourceEditId ? "Edit Resource" : "Add New Resource"}</h2>
-                <button
-                  className="bg-mwg-card text-mwg-accent border border-mwg-accent px-4 py-2 rounded-md hover:bg-mwg-accent/10 transition-colors"
-                  onClick={handleInitializeResources}
-                  disabled={isInitializingResources}
-                >
-                  {isInitializingResources ? "Adding Sample Resources..." : "Add Sample Resources"}
-                </button>
-              </div>
-              <form id="resource-form" onSubmit={handleResourceSubmit} className="mb-8 space-y-4 bg-mwg-card p-6 rounded-lg shadow">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Category</label>
-                    <input 
-                      type="text" 
-                      placeholder="Category (e.g., trading, analysis)" 
-                      className="w-full p-2 border rounded bg-white text-gray-800" 
-                      value={resourceForm.category} 
-                      onChange={e => setResourceForm(f => ({ ...f, category: e.target.value }))} 
-                      required 
-                    />
-                    <p className="text-xs text-mwg-muted mt-1">Single word, lowercase (e.g., trading, analysis)</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-mwg-text mb-1">Category Label</label>
-                    <input 
-                      type="text" 
-                      placeholder="Category Label" 
-                      className="w-full p-2 border rounded bg-white text-gray-800" 
-                      value={resourceForm.categoryLabel} 
-                      onChange={e => setResourceForm(f => ({ ...f, categoryLabel: e.target.value }))} 
-                      required 
-                    />
-                    <p className="text-xs text-mwg-muted mt-1">Display name (e.g., Trading Platform, Analysis Tool)</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Title</label>
-                  <input 
-                    type="text" 
-                    placeholder="Resource title" 
-                    className="w-full p-2 border rounded bg-white text-gray-800" 
-                    value={resourceForm.title} 
-                    onChange={e => setResourceForm(f => ({ ...f, title: e.target.value }))} 
-                    required 
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Description</label>
-                  <textarea 
-                    placeholder="Resource description" 
-                    className="w-full p-2 border rounded bg-white text-gray-800 min-h-32" 
-                    value={resourceForm.description} 
-                    onChange={e => setResourceForm(f => ({ ...f, description: e.target.value }))} 
-                    required 
-                    rows={4}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Affiliate Link</label>
-                  <input 
-                    type="url" 
-                    placeholder="https://example.com/affiliate-link" 
-                    className="w-full p-2 border rounded bg-white text-gray-800" 
-                    value={resourceForm.link} 
-                    onChange={e => setResourceForm(f => ({ ...f, link: e.target.value }))} 
-                    required 
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Image</label>
-                  {typeof resourceForm.imageUrl === "string" && resourceForm.imageUrl && (
-                    <div className="mb-2">
-                      <img src={resourceForm.imageUrl} alt="Current image" className="h-32 object-cover rounded" />
-                      <p className="text-xs text-mwg-muted mt-1">Current image</p>
-                    </div>
-                  )}
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="w-full p-2 border rounded bg-white text-gray-800" 
-                    onChange={e => setResourceForm(f => ({ ...f, imageUrl: (e.target as HTMLInputElement).files?.[0] || null }))} 
-                  />
-                </div>
-                
-                <div className="flex items-center gap-4 pt-2">
-                  <button 
-                    type="submit" 
-                    className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                    disabled={dataLoading}
-                  >
-                    {resourceEditId ? "Update Resource" : "Add Resource"}
-                  </button>
-                  
-                  {resourceEditId && (
-                    <button 
-                      type="button" 
-                      className="px-4 py-2 border border-mwg-muted text-mwg-muted rounded-md hover:bg-mwg-card/50" 
-                      onClick={() => { 
-                        setResourceForm({ 
-                          category: "", 
-                          categoryLabel: "", 
-                          title: "", 
-                          description: "", 
-                          imageUrl: null, 
-                          link: "" 
-                        }); 
-                        setResourceEditId(null); 
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
-              
-              <h2 className="text-xl font-bold mb-4 text-mwg-text">Existing Resources</h2>
-              {resources.length === 0 ? (
-                <p className="text-mwg-muted italic">No resources yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {resources.map(resource => (
-                    <div key={resource.id} className="bg-mwg-card border rounded-lg p-4 flex flex-col md:flex-row gap-4">
-                      {typeof resource.imageUrl === "string" && resource.imageUrl && (
-                        <div className="md:w-1/4">
-                          <img src={resource.imageUrl} alt={resource.title} className="w-full h-32 object-cover rounded-md" />
-                        </div>
-                      )}
-                      <div className={`${typeof resource.imageUrl === "string" && resource.imageUrl ? "md:w-3/4" : "w-full"}`}>
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-bold text-mwg-text text-lg">{resource.title}</h3>
-                            <div className="text-xs text-mwg-muted mb-2">
-                              <span className="bg-mwg-accent/20 text-mwg-accent px-2 py-0.5 rounded-full">{resource.categoryLabel}</span> 
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button 
-                              className="text-blue-400 hover:text-blue-300 transition-colors" 
-                              onClick={() => handleResourceEdit(resource)}
-                            >
-                              Edit
-                            </button>
-                            {resource.id && (
-                              <button 
-                                className="text-red-400 hover:text-red-300 transition-colors" 
-                                onClick={() => handleResourceDelete(resource.id!)}
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-mwg-muted mb-2">
-                          {resource.description.length > 150 ? `${resource.description.substring(0, 150)}...` : resource.description}
-                        </div>
-                        <div className="text-xs text-mwg-muted truncate">
-                          <span className="font-bold">Link:</span> {resource.link}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : tab === "contact" ? (
-            <div>
-              <ContactInfoManager />
-            </div>
-          ) : (
-            <div>
-              <div className="bg-mwg-dark p-6 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4">Site Settings</h2>
-                <div className="mb-8">
-                  <h3 className="text-xl font-medium mb-4">Footer Logo</h3>
-                  <form onSubmit={handleFooterLogoSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Logo Image</label>
-                      <div className="md:w-1/2">
-                        {typeof footerLogo.imageUrl === 'string' && footerLogo.imageUrl ? (
-                          <div className="mb-4">
-                            <p className="text-sm mb-2">Current Logo:</p>
-                            <img 
-                              src={footerLogo.imageUrl} 
-                              alt="Footer Logo" 
-                              className="max-h-48 object-contain bg-white p-2 rounded"
-                            />
-                          </div>
-                        ) : null}
-                        <div className="mt-2">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0] || null;
-                              handleLogoImageChange(file);
-                            }}
-                            className="block w-full text-sm text-gray-400
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-mwg-primary file:text-white
-                              hover:file:bg-mwg-primary/90
-                            "
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Logo Link URL</label>
-                      <input
-                        type="url"
-                        value={footerLogo.linkUrl}
-                        onChange={(e) => setFooterLogo({...footerLogo, linkUrl: e.target.value})}
-                        placeholder="https://example.com"
-                        className="w-full md:w-1/2 bg-mwg-input text-white p-2 rounded"
-                      />
-                      <p className="text-xs text-mwg-muted mt-1">
-                        Enter the URL where the logo should link to
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <button
-                        type="submit"
-                        disabled={footerLogoLoading}
-                        className="px-4 py-2 bg-mwg-primary text-black rounded hover:bg-mwg-primary/90 disabled:opacity-50"
-                      >
-                        {footerLogoLoading ? "Saving..." : "Save Changes"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-mwg-text">Page Content Sections</h2>
-            <button
-              className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors"
-              onClick={() => setShowNewContentForm(!showNewContentForm)}
-            >
-              {showNewContentForm ? "Cancel" : "Add New Section"}
-            </button>
-          </div>
-          
-          {showNewContentForm && (
-            <form onSubmit={handleAddNewContent} className="mb-8 space-y-4 bg-mwg-card p-6 rounded-lg shadow">
-              <div>
-                <label className="block text-sm font-medium text-mwg-text mb-1">Page Name</label>
-                <select 
-                  className="w-full p-2 border rounded bg-white text-gray-800" 
-                  value={newContent.pageName} 
-                  onChange={e => setNewContent({...newContent, pageName: e.target.value})}
-                  required
-                >
-                  <option value="">Select a page</option>
-                  <option value="home">Home</option>
-                  <option value="resources">Resources</option>
-                  <option value="contact">Contact</option>
-                  <option value="custom">Custom Page</option>
-                </select>
-                {newContent.pageName === 'custom' && (
-                  <input 
-                    type="text" 
-                    placeholder="Custom page name" 
-                    className="w-full mt-2 p-2 border rounded bg-white text-gray-800" 
-                    value={newContent.customPageName || ''} 
-                    onChange={e => setNewContent({...newContent, customPageName: e.target.value, pageName: e.target.value})} 
-                    required 
-                  />
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-mwg-text mb-1">Content (JSON format)</label>
-                <textarea 
-                  placeholder="Content in JSON format" 
-                  className="w-full p-2 border rounded bg-white text-gray-800 min-h-32 font-mono" 
-                  value={typeof newContent.content === 'object' ? JSON.stringify(newContent.content, null, 2) : newContent.content || ''} 
-                  onChange={e => {
-                    try {
-                      // Try to parse as JSON
-                      const parsed = JSON.parse(e.target.value);
-                      setNewContent({...newContent, content: parsed});
-                    } catch {
-                      // If not valid JSON, store as string
-                      setNewContent({...newContent, content: e.target.value});
-                    }
-                  }} 
-                  required 
-                  rows={8}
-                />
-                <p className="text-xs text-mwg-muted mt-1">Enter content in JSON format or plain text.</p>
-              </div>
-              
-              <button 
-                type="submit" 
-                className="bg-mwg-accent text-white px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                disabled={dataLoading}
-              >
-                Add Content Section
-              </button>
-            </form>
-          )}
-          
-          {content.length === 0 ? (
-            <p className="text-mwg-muted italic">No content sections defined yet.</p>
-          ) : (
-            <div className="space-y-6">
-              {content.map(page => (
-                <div key={page.id} className="bg-mwg-card border rounded-lg p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-lg text-mwg-text">
-                      Page: <span className="text-mwg-accent capitalize">{page.pageName}</span>
-                    </h3>
-                    <div className="flex gap-2">
-                      {(page.pageName === 'home' || page.pageName === 'resources' || page.pageName === 'contact') && (
-                        <button
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
-                          onClick={() => {
-                            // Reset to default template
-                            const pageName = page.pageName as PageTemplateKey;
-                            if (DEFAULT_PAGE_TEMPLATES[pageName]) {
-                              handleContentEdit(page.id, 'content', JSON.stringify(DEFAULT_PAGE_TEMPLATES[pageName].sections, null, 2));
-                            }
-                          }}
-                          title="Reset to default template"
-                        >
-                          Reset
-                        </button>
-                      )}
-                      <button
-                        className="text-red-400 hover:text-red-300 transition-colors"
-                        onClick={() => handleDeleteContent(page.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-2 text-sm">
-                    <span className="bg-mwg-accent/10 text-mwg-accent px-2 py-0.5 rounded-full">
-                      {typeof page.content === 'object' ? 'JSON Content' : 'Text Content'}
-                    </span>
-                  </div>
-                  
-                  <label className="block text-sm font-medium text-mwg-text mb-1">Content (JSON or text)</label>
-                  <textarea 
-                    className="w-full p-2 border rounded bg-white text-gray-800 mb-4 font-mono" 
-                    value={
-                      typeof contentEdit[page.id]?.content === 'string' 
-                        ? contentEdit[page.id].content 
-                        : typeof contentEdit[page.id]?.content === 'object'
-                          ? JSON.stringify(contentEdit[page.id].content, null, 2)
-                          : typeof page.content === 'object'
-                            ? JSON.stringify(page.content, null, 2)
-                            : page.content
-                    } 
-                    onChange={e => {
-                      try {
-                        // Try to parse as JSON
-                        const parsed = JSON.parse(e.target.value);
-                        handleContentEdit(page.id, 'content', parsed);
-                      } catch {
-                        // If not valid JSON, store as string
-                        handleContentEdit(page.id, 'content', e.target.value);
-                      }
-                    }} 
-                    rows={12}
-                  />
-                  
-                  <button 
-                    className="bg-mwg-accent text-black px-4 py-2 rounded-md hover:bg-mwg-accent/90 transition-colors" 
-                    onClick={() => handleContentSave(page.id)} 
-                    disabled={dataLoading}
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+    <div className="w-full max-w-6xl mx-auto">
+      {dataError && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+          <p className="font-bold">Error</p>
+          <p>{dataError}</p>
+          <button 
+            onClick={() => {
+              setDataError(null);
+              if (tab === "blog") fetchPosts();
+              else if (tab === "content") fetchContent();
+              else if (tab === "resources") fetchResources();
+              else if (tab === "settings") fetchSiteSettings();
+            }}
+            className="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm"
+          >
+            Try Again
+          </button>
         </div>
       )}
+
+      <div className="flex mb-6 border-b">
+        <button
+          className={`py-2 px-4 ${tab === "blog" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
+          onClick={() => setTab("blog")}
+        >
+          Blog Posts
+        </button>
+        <button
+          className={`py-2 px-4 ${tab === "content" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
+          onClick={() => setTab("content")}
+        >
+          Page Content
+        </button>
+        <button
+          className={`py-2 px-4 ${tab === "resources" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
+          onClick={() => setTab("resources")}
+        >
+          Resources
+        </button>
+        <button
+          className={`py-2 px-4 ${tab === "settings" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
+          onClick={() => setTab("settings")}
+        >
+          Site Settings
+        </button>
+      </div>
+
+      {/* Show loading state */}
+      {dataLoading && (
+        <div className="flex justify-center my-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mwg-accent"></div>
+        </div>
+      )}
+
+      {/* Rest of the component rendering based on tab... */}
     </div>
   );
 } 
