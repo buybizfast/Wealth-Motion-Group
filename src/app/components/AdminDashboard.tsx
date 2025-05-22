@@ -9,7 +9,7 @@ import initializeResources from "@/scripts/initializeResources";
 import RichTextEditor from "./RichTextEditor";
 import ContactInfoManager from "./ContactInfoManager";
 
-const BLOG_COLLECTION = "blogPosts";
+const BLOG_COLLECTION = "blogs";
 const CONTENT_COLLECTION = "pageContent";
 const RESOURCES_COLLECTION = "resources";
 const SITE_SETTINGS_COLLECTION = "siteSettings";

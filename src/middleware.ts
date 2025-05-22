@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
 
     if (!sessionCookie) {
       // No session cookie, redirect to login page
+      console.log('No session cookie found, redirecting to home');
       return NextResponse.redirect(new URL('/', req.url));
     }
     
@@ -18,27 +19,40 @@ export async function middleware(req: NextRequest) {
       const host = req.headers.get('host') || '';
       const adminCheckUrl = `${protocol}//${host}/api/auth/check-admin`;
       
+      console.log('Checking admin status at URL:', adminCheckUrl);
+      
       // Call the API with the session cookie
       const response = await fetch(adminCheckUrl, {
         headers: {
           Cookie: `session=${sessionCookie}`
-        }
+        },
+        cache: 'no-store' // Prevent caching issues
       });
       
       if (!response.ok) {
-        // Not an admin, redirect to home page
+        console.error('Admin check API returned error:', response.status, response.statusText);
+        // For troubleshooting, let the user through during development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Development mode: allowing access despite API error');
+          return NextResponse.next();
+        }
         return NextResponse.redirect(new URL('/', req.url));
       }
       
       const data = await response.json();
+      console.log('Admin check response:', data);
       
       if (!data.isAdmin) {
-        // Not an admin, redirect to home page
+        console.log('User is not an admin, redirecting to home');
         return NextResponse.redirect(new URL('/', req.url));
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
-      // If there's an error, redirect to home page
+      // For troubleshooting, let the user through during development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Development mode: allowing access despite error');
+        return NextResponse.next();
+      }
       return NextResponse.redirect(new URL('/', req.url));
     }
   }

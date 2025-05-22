@@ -32,7 +32,7 @@ export default function BlogPage() {
     async function fetchPosts() {
       try {
         setLoading(true);
-        const fetchedPosts = await getDocuments("blogPosts");
+        const fetchedPosts = await getDocuments("blogs");
         
         // Sort by date (newest first)
         const sortedPosts = [...fetchedPosts].sort((a: any, b: any) => {

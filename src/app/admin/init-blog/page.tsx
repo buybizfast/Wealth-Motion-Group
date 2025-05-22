@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { addDocument } from "@/lib/firebase/firebaseUtils";
 import Link from "next/link";
 
-const BLOG_COLLECTION = "blogPosts";
+const BLOG_COLLECTION = "blogs";
 
 const samplePosts = [
   {
