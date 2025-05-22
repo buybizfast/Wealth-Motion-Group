@@ -3,7 +3,7 @@
 
 import { addDocument } from '../lib/firebase/firebaseUtils';
 
-const BLOG_COLLECTION = 'blogPosts';
+const BLOG_COLLECTION = 'blogs';
 
 const sampleBlogPosts = [
   {

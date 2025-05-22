@@ -138,7 +138,7 @@ export default function BlogPage() {
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2">
             <button 
-              className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeCategory === "All" ? "bg-mwg-accent text-white" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeCategory === "All" ? "bg-mwg-accent text-black" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
               onClick={() => setActiveCategory("All")}
             >
               All
