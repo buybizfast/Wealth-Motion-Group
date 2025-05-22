@@ -1143,53 +1143,57 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-4 bg-gray-50 p-4 rounded-md">
                     {item.pageName === "home" && item.content && item.content.sections && (
                       <>
-                        <div className="border-b pb-4">
-                          <h4 className="font-medium mb-2">Hero Section</h4>
+                        <div className="border-b pb-4 border-gray-300">
+                          <h4 className="font-medium mb-2 text-black">Hero Section</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Title</label>
                               <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.title || "Not set"}</p>
                             </div>
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
                               <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.subtitle || "Not set"}</p>
                             </div>
                           </div>
                         </div>
                         
-                        <div className="border-b pb-4">
-                          <h4 className="font-medium mb-2">About Section</h4>
+                        <div className="border-b pb-4 border-gray-300">
+                          <h4 className="font-medium mb-2 text-black">About Section</h4>
                           <div className="space-y-3">
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Title</label>
                               <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 value={contentEdit[item.id]?.["sections.about.title"] || (item.content.sections.about ? item.content.sections.about.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.about.title" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.about?.title || "Not set"}</p>
                             </div>
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Content</label>
                               <textarea
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 rows={3}
                                 value={contentEdit[item.id]?.["sections.about.content"] || (item.content.sections.about ? item.content.sections.about.content : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.about.content" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.about?.content ? item.content.sections.about.content.substring(0, 50) + "..." : "Not set"}</p>
                             </div>
                           </div>
                         </div>
@@ -1197,26 +1201,28 @@ export default function AdminDashboard() {
                     )}
                     
                     {item.pageName === "resources" && item.content && item.content.sections && (
-                      <div className="border-b pb-4">
-                        <h4 className="font-medium mb-2">Hero Section</h4>
+                      <div className="border-b pb-4 border-gray-300">
+                        <h4 className="font-medium mb-2 text-black">Hero Section</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-gray-600 text-sm mb-1">Title</label>
                             <input
                               type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                               value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                               onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                             />
+                            <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.title || "Not set"}</p>
                           </div>
                           <div>
                             <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
                             <input
                               type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                               value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                               onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                             />
+                            <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.subtitle || "Not set"}</p>
                           </div>
                         </div>
                       </div>
@@ -1224,33 +1230,35 @@ export default function AdminDashboard() {
                     
                     {item.pageName === "contact" && item.content && item.content.sections && (
                       <>
-                        <div className="border-b pb-4">
-                          <h4 className="font-medium mb-2">Hero Section</h4>
+                        <div className="border-b pb-4 border-gray-300">
+                          <h4 className="font-medium mb-2 text-black">Hero Section</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Title</label>
                               <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.title || "Not set"}</p>
                             </div>
                             <div>
                               <label className="block text-gray-600 text-sm mb-1">Subtitle</label>
                               <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
                                 value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Current value: {item.content.sections.hero?.subtitle || "Not set"}</p>
                             </div>
                           </div>
                         </div>
                         
                         {item.content.sections.contactInfo && (
-                          <div className="border-b pb-4">
-                            <h4 className="font-medium mb-2">Contact Information</h4>
+                          <div className="border-b pb-4 border-gray-300">
+                            <h4 className="font-medium mb-2 text-black">Contact Information</h4>
                             <ContactInfoManager 
                               initialData={item.content.sections.contactInfo}
                               onChange={(newData) => handleContentEdit(item.id, "sections.contactInfo" as any, newData)}
