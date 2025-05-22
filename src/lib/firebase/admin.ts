@@ -1,44 +1,46 @@
 import * as admin from 'firebase-admin';
+import { getFirebasePrivateKey } from './vercel-firebase-helper';
 
 /**
  * Initializes the Firebase Admin SDK if it hasn't been initialized yet
- * Properly handles private key formatting from environment variables
+ * Using a more thorough approach for handling credentials across environments
  */
 export function initializeFirebaseAdmin() {
   if (admin.apps.length) {
     return admin;
   }
 
-  // Handle the private key - it comes from Vercel environment variables 
-  // with escaped newlines that need to be converted to actual newlines
-  let privateKey;
-  
   try {
-    // First try parsing it directly in case it's already properly formatted
-    privateKey = process.env.FIREBASE_PRIVATE_KEY;
+    // Get the properly formatted private key
+    const privateKey = getFirebasePrivateKey();
     
-    // If it's a JSON string (sometimes environment variables get stored this way)
-    if (privateKey && privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = JSON.parse(privateKey);
-    }
-    
-    // Replace escaped newlines with actual newlines
-    if (privateKey && typeof privateKey === 'string') {
-      privateKey = privateKey.replace(/\\n/g, '\n');
+    // Check if we have all the required service account credentials
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && privateKey) {
+      // Initialize with service account credentials
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey,
+        }),
+      });
+    } else {
+      // Fall back to auto-detection (for Google Cloud environments)
+      admin.initializeApp();
     }
   } catch (error) {
-    console.error('Error parsing Firebase private key:', error);
-    throw new Error('Invalid Firebase private key format');
+    console.error('Error initializing Firebase Admin:', error);
+    
+    // If all else fails, try application default credentials
+    try {
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+      });
+    } catch (fallbackError) {
+      console.error('Failed to initialize Firebase Admin with fallback method:', fallbackError);
+      throw new Error('Could not initialize Firebase Admin SDK');
+    }
   }
-
-  // Initialize the app with the service account credentials
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey,
-    }),
-  });
 
   return admin;
 } 

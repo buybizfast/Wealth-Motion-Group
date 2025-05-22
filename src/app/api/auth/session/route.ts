@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeFirebaseAdmin } from '@/lib/firebase/admin';
-
-// Initialize Firebase Admin SDK using the shared utility
-const admin = initializeFirebaseAdmin();
+// Remove static import
+// import { initializeFirebaseAdmin } from '@/lib/firebase/admin';
 
 // Session cookie expiration (14 days)
 const SESSION_EXPIRATION_TIME = 60 * 60 * 24 * 14 * 1000;
@@ -17,6 +15,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    // Dynamically import Firebase Admin
+    const { initializeFirebaseAdmin } = await import('@/lib/firebase/admin');
+    const admin = initializeFirebaseAdmin();
     
     // Create a session cookie from the ID token
     const sessionCookie = await admin.auth().createSessionCookie(idToken, {

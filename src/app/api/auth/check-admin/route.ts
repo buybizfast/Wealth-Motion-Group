@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeFirebaseAdmin } from '@/lib/firebase/admin';
-
-// Initialize Firebase Admin SDK using the shared utility
-const admin = initializeFirebaseAdmin();
+// Remove static import of Firebase Admin
+// import { initializeFirebaseAdmin } from '@/lib/firebase/admin';
 
 // List of admin emails that are allowed access
 const ADMIN_EMAILS = [
@@ -20,6 +18,10 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Dynamically import Firebase Admin to prevent initialization during build
+    const { initializeFirebaseAdmin } = await import('@/lib/firebase/admin');
+    const admin = initializeFirebaseAdmin();
+
     // Verify the session cookie
     const decodedClaims = await admin.auth().verifySessionCookie(sessionCookie, true);
     
