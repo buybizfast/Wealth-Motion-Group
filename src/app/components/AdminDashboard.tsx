@@ -1144,7 +1144,7 @@ export default function AdminDashboard() {
                   </div>
                   
                   <div className="space-y-4">
-                    {item.pageName === "home" && (
+                    {item.pageName === "home" && item.content && item.content.sections && (
                       <>
                         <div className="border-b pb-4">
                           <h4 className="font-medium mb-2">Hero Section</h4>
@@ -1154,7 +1154,7 @@ export default function AdminDashboard() {
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                                value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                               />
                             </div>
@@ -1163,7 +1163,7 @@ export default function AdminDashboard() {
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                               />
                             </div>
@@ -1178,7 +1178,7 @@ export default function AdminDashboard() {
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={contentEdit[item.id]?.["sections.about.title"] || item.content.sections.about.title}
+                                value={contentEdit[item.id]?.["sections.about.title"] || (item.content.sections.about ? item.content.sections.about.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.about.title" as any, e.target.value)}
                               />
                             </div>
@@ -1187,7 +1187,7 @@ export default function AdminDashboard() {
                               <textarea
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 rows={3}
-                                value={contentEdit[item.id]?.["sections.about.content"] || item.content.sections.about.content}
+                                value={contentEdit[item.id]?.["sections.about.content"] || (item.content.sections.about ? item.content.sections.about.content : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.about.content" as any, e.target.value)}
                               />
                             </div>
@@ -1196,7 +1196,7 @@ export default function AdminDashboard() {
                       </>
                     )}
                     
-                    {item.pageName === "resources" && (
+                    {item.pageName === "resources" && item.content && item.content.sections && (
                       <div className="border-b pb-4">
                         <h4 className="font-medium mb-2">Hero Section</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1205,7 +1205,7 @@ export default function AdminDashboard() {
                             <input
                               type="text"
                               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                              value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                               onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                             />
                           </div>
@@ -1214,7 +1214,7 @@ export default function AdminDashboard() {
                             <input
                               type="text"
                               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                              value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                               onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                             />
                           </div>
@@ -1222,7 +1222,7 @@ export default function AdminDashboard() {
                       </div>
                     )}
                     
-                    {item.pageName === "contact" && (
+                    {item.pageName === "contact" && item.content && item.content.sections && (
                       <>
                         <div className="border-b pb-4">
                           <h4 className="font-medium mb-2">Hero Section</h4>
@@ -1232,7 +1232,7 @@ export default function AdminDashboard() {
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={contentEdit[item.id]?.["sections.hero.title"] || item.content.sections.hero.title}
+                                value={contentEdit[item.id]?.["sections.hero.title"] || (item.content.sections.hero ? item.content.sections.hero.title : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.title" as any, e.target.value)}
                               />
                             </div>
@@ -1241,20 +1241,22 @@ export default function AdminDashboard() {
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || item.content.sections.hero.subtitle}
+                                value={contentEdit[item.id]?.["sections.hero.subtitle"] || (item.content.sections.hero ? item.content.sections.hero.subtitle : "")}
                                 onChange={(e) => handleContentEdit(item.id, "sections.hero.subtitle" as any, e.target.value)}
                               />
                             </div>
                           </div>
                         </div>
                         
-                        <div className="border-b pb-4">
-                          <h4 className="font-medium mb-2">Contact Information</h4>
-                          <ContactInfoManager 
-                            initialData={item.content.sections.contactInfo}
-                            onChange={(newData) => handleContentEdit(item.id, "sections.contactInfo" as any, newData)}
-                          />
-                        </div>
+                        {item.content.sections.contactInfo && (
+                          <div className="border-b pb-4">
+                            <h4 className="font-medium mb-2">Contact Information</h4>
+                            <ContactInfoManager 
+                              initialData={item.content.sections.contactInfo}
+                              onChange={(newData) => handleContentEdit(item.id, "sections.contactInfo" as any, newData)}
+                            />
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -1338,6 +1340,12 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 className="font-bold text-lg mb-4">Contact Information</h3>
+            
+            <ContactInfoManager />
           </div>
         </div>
       )}
