@@ -14,27 +14,23 @@ export async function middleware(req: NextRequest) {
     const adminStatusCookie = req.cookies.get('admin_status')?.value;
 
     // For development mode, print cookie info for debugging
-    if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
-      console.log('Auth cookies:', { 
-        sessionCookie: sessionCookie ? 'exists' : 'missing',
-        adminStatusCookie: adminStatusCookie ? 'exists' : 'missing'
-      });
-    }
+    console.log('[Middleware] Checking access to admin path:', req.nextUrl.pathname);
+    console.log('[Middleware] Auth cookies:', { 
+      sessionCookie: sessionCookie ? 'exists' : 'missing',
+      adminStatusCookie: adminStatusCookie ? 'exists' : 'missing'
+    });
 
     // Check for admin status cookie first as a quick path for already verified admins
     if (adminStatusCookie === 'true') {
-      console.log('Admin status cookie found, allowing admin access');
+      console.log('[Middleware] Admin status cookie found, allowing admin access');
       return NextResponse.next();
     }
 
     if (!sessionCookie) {
       // No session cookie, redirect to login page
-      console.log('No session cookie found, redirecting to home');
+      console.log('[Middleware] No session cookie found, redirecting to home');
       return NextResponse.redirect(new URL('/', req.url));
     }
-    
-    // Even in development, only allow specific admin emails
-    // We'll continue with the admin check API to verify
     
     // Call the admin check API to verify if the user is an admin
     try {
@@ -43,7 +39,7 @@ export async function middleware(req: NextRequest) {
       const host = req.headers.get('host') || '';
       const adminCheckUrl = `${protocol}//${host}/api/auth/check-admin`;
       
-      console.log('Checking admin status at URL:', adminCheckUrl);
+      console.log('[Middleware] Checking admin status at URL:', adminCheckUrl);
       
       // Call the API with the session cookie
       let response;
@@ -56,29 +52,30 @@ export async function middleware(req: NextRequest) {
         });
         
         if (!response.ok) {
-          console.error('Admin check API returned error:', response.status, response.statusText);
-          // Even in development mode, we require proper authentication
-          console.log('Admin check API error, denying access');
+          console.error('[Middleware] Admin check API returned error:', response.status, response.statusText);
+          console.log('[Middleware] Admin check API error, denying access');
           return NextResponse.redirect(new URL('/', req.url));
         }
       } catch (fetchError) {
-        console.error('Error making admin check API request:', fetchError);
-        // Even in development mode, we require proper authentication
-        console.log('Fetch error when checking admin status, denying access');
+        console.error('[Middleware] Error making admin check API request:', fetchError);
+        console.log('[Middleware] Fetch error when checking admin status, denying access');
         return NextResponse.redirect(new URL('/', req.url));
       }
       
       const data = await response.json();
-      console.log('Admin check response:', data);
+      console.log('[Middleware] Admin check response:', data);
       
       if (!data.isAdmin) {
-        console.log('User is not an admin, redirecting to home');
+        console.log('[Middleware] User is not an admin, redirecting to home');
         return NextResponse.redirect(new URL('/', req.url));
       }
+      
+      console.log('[Middleware] User is admin, allowing access');
+      return NextResponse.next();
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      console.error('[Middleware] Error checking admin status:', error);
       // On error, deny access to maintain security
-      console.log('Error occurred during admin check, denying access');
+      console.log('[Middleware] Error occurred during admin check, denying access');
       return NextResponse.redirect(new URL('/', req.url));
     }
   }

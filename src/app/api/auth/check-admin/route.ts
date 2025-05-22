@@ -14,7 +14,15 @@ export async function GET(req: NextRequest) {
 
   if (!sessionCookie) {
     // No session cookie found
+    console.log('No session cookie found in check-admin API');
     return NextResponse.json({ isAdmin: false }, { status: 401 });
+  }
+
+  // Check if admin_status cookie is already set
+  const adminStatusCookie = req.cookies.get('admin_status')?.value;
+  if (adminStatusCookie === 'true') {
+    console.log('Admin status cookie found in check-admin API');
+    return NextResponse.json({ isAdmin: true });
   }
 
   try {

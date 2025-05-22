@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/app/components/Logo";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 const navLinks = [
@@ -10,6 +10,12 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/resources", label: "Resources" },
   { href: "/contact", label: "Contact" },
+];
+
+// Keep in sync with middleware.ts and check-admin API
+const ADMIN_EMAILS = [
+  "Kenneth.j1698@gmail.com",
+  "jpotts2@mail.bradley.edu"
 ];
 
 export default function Navbar() {
@@ -20,6 +26,15 @@ export default function Navbar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user, signInWithGoogle, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  useEffect(() => {
+    if (user && user.email) {
+      setIsAdmin(ADMIN_EMAILS.includes(user.email));
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -91,13 +106,15 @@ export default function Navbar() {
                   <div className="py-1 border-b border-gray-200 px-4 text-xs text-gray-500">
                     Signed in as {user.email}
                   </div>
-                  <Link
-                    href="/admin"
-                    className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
-                    onClick={() => setShowAdminMenu(false)}
-                  >
-                    Admin Dashboard
-                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="block px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10 font-medium"
+                      onClick={() => setShowAdminMenu(false)}
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-4 py-2 text-mwg-dark hover:bg-mwg-accent/10"
