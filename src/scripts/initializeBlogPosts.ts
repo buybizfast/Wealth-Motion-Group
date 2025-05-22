@@ -5,6 +5,18 @@ import { addDocument } from '../lib/firebase/firebaseUtils';
 
 const BLOG_COLLECTION = 'blogPosts';
 
+// Define a type for our blog post structure
+type BlogPost = {
+  title: string;
+  category: string;
+  date: string;
+  desc: string;
+  img: string;
+};
+
+// Define the type for the return value of addDocument
+type BlogPostWithId = BlogPost & { id: string };
+
 const sampleBlogPosts = [
   {
     title: 'Emerging Market Trends for 2025',
@@ -54,11 +66,11 @@ const initializeBlogPosts = async () => {
   console.log('Starting blog post initialization...');
   
   try {
-    const results = [];
+    const results: BlogPostWithId[] = [];
     for (const post of sampleBlogPosts) {
       const result = await addDocument(BLOG_COLLECTION, post);
       console.log(`Added post: ${post.title}`);
-      results.push(result);
+      results.push(result as BlogPostWithId);
     }
     
     console.log('Blog posts initialization completed successfully!');
