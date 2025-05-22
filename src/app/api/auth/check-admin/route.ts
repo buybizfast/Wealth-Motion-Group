@@ -5,9 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // List of admin emails that are allowed access
 const ADMIN_EMAILS = [
   "Kenneth.j1698@gmail.com",
-  "jpotts2@mail.bradley.edu",
-  // Add any other admin emails here for debugging
-  process.env.NODE_ENV === 'development' ? "*" : "" // In development, allow any email
+  "jpotts2@mail.bradley.edu"
 ].filter(Boolean); // Remove empty strings
 
 export async function GET(req: NextRequest) {
@@ -33,11 +31,8 @@ export async function GET(req: NextRequest) {
     console.log('Checking admin status for user:', user.email);
     console.log('Admin emails:', ADMIN_EMAILS);
     
-    // Check if we're in development mode and allowing all emails
-    if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev') && ADMIN_EMAILS.includes("*")) {
-      console.log('Development mode: treating all users as admins');
-      return NextResponse.json({ isAdmin: true });
-    }
+    // We now restrict admin access even in development mode
+    // No special handling for development mode
     
     // Case-insensitive check if the user's email is in the allowed admin emails list
     if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {

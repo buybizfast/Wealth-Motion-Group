@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// List of admin emails that are allowed access - keeping in sync with check-admin API
+const ADMIN_EMAILS = [
+  "Kenneth.j1698@gmail.com",
+  "jpotts2@mail.bradley.edu"
+];
+
 export async function middleware(req: NextRequest) {
   // Check if the path starts with /admin
   if (req.nextUrl.pathname.startsWith('/admin')) {
@@ -27,11 +33,8 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/', req.url));
     }
     
-    // In development, always allow access to admin route
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Development mode: allowing access to admin route');
-      return NextResponse.next();
-    }
+    // Even in development, only allow specific admin emails
+    // We'll continue with the admin check API to verify
     
     // Call the admin check API to verify if the user is an admin
     try {
@@ -54,20 +57,14 @@ export async function middleware(req: NextRequest) {
         
         if (!response.ok) {
           console.error('Admin check API returned error:', response.status, response.statusText);
-          // For development mode only, allow access despite errors
-          if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
-            console.log('Development mode: allowing access despite API error');
-            return NextResponse.next();
-          }
+          // Even in development mode, we require proper authentication
+          console.log('Admin check API error, denying access');
           return NextResponse.redirect(new URL('/', req.url));
         }
       } catch (fetchError) {
         console.error('Error making admin check API request:', fetchError);
-        // For development mode only, allow access despite errors
-        if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
-          console.log('Development mode: allowing access despite fetch error');
-          return NextResponse.next();
-        }
+        // Even in development mode, we require proper authentication
+        console.log('Fetch error when checking admin status, denying access');
         return NextResponse.redirect(new URL('/', req.url));
       }
       
@@ -80,9 +77,9 @@ export async function middleware(req: NextRequest) {
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
-      // On error, allow access to prevent getting locked out
-      console.log('Error occurred, but allowing access to prevent lockout');
-      return NextResponse.next();
+      // On error, deny access to maintain security
+      console.log('Error occurred during admin check, denying access');
+      return NextResponse.redirect(new URL('/', req.url));
     }
   }
 
