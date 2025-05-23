@@ -6,6 +6,7 @@ import { getRedirectResult, getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import initializeBlogPosts from "@/scripts/initializeBlogPosts";
 import initializeResources from "@/scripts/initializeResources";
+import ensureResources from "@/scripts/ensureResources";
 import RichTextEditor from "./RichTextEditor";
 import ContactInfoManager from "./ContactInfoManager";
 
@@ -240,6 +241,15 @@ export default function AdminDashboard() {
     
     console.log("Fetching resources...");
     try {
+      // First, ensure the database has the required resources
+      try {
+        await ensureResources();
+        console.log("Ensured database has required resources");
+      } catch (ensureError) {
+        console.warn("Could not ensure resources in database:", ensureError);
+        // Continue anyway
+      }
+      
       const docs = await getDocuments(RESOURCES_COLLECTION);
       console.log("Resources fetched:", docs.length);
       

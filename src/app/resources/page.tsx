@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getDocuments } from '@/lib/firebase/firebaseUtils';
+import ensureResources from '@/scripts/ensureResources';
 
 type ResourceCategory = 'trading' | 'analysis' | 'productivity' | 'education' | 'risk' | 'news' | 'all';
 
@@ -112,6 +113,16 @@ export default function ResourcesPage() {
       console.log("Starting resource fetch...");
       
       try {
+        // First, ensure the database has the required resources
+        try {
+          await ensureResources();
+          console.log("Ensured database has required resources");
+        } catch (ensureError) {
+          console.warn("Could not ensure resources in database:", ensureError);
+          // Continue anyway - we have fallbacks
+        }
+        
+        // Now fetch the resources
         const fetchedResources = await getDocuments("resources");
         console.log("Fetched resources from Firebase:", fetchedResources?.length || 0);
         
