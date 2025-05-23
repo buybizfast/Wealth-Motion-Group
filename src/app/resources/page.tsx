@@ -16,34 +16,88 @@ interface Resource {
   link: string;
 }
 
-// Fallback resources in case Firebase fetch fails
+// Complete resources matching the admin dashboard sample resources
 const fallbackResources: Resource[] = [
   {
-    id: "fallback-1",
+    id: "resource-1",
     category: "trading",
     categoryLabel: "Trading Platform",
-    title: "TradingView",
-    description: "Advanced charting platform with social networking features for traders and investors.",
-    imageUrl: "https://images.unsplash.com/photo-1642790405100-0f89dc73a173?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    link: "https://www.tradingview.com"
+    title: "Premium Trading Platform",
+    description: "A comprehensive trading platform with advanced analytics, live charts, and extended market hours. Includes access to pre-market and after-hours trading with real-time data.",
+    imageUrl: "https://images.unsplash.com/photo-1642033697099-309b2078c648?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/trading-platform"
   },
   {
-    id: "fallback-2",
-    category: "education",
-    categoryLabel: "Education",
-    title: "Trading Courses",
-    description: "Comprehensive courses on trading strategies, technical analysis, and risk management.",
-    imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    link: "https://www.motionwealthgroup.com/resources"
+    id: "resource-2",
+    category: "analysis",
+    categoryLabel: "Analysis Tool",
+    title: "Market Scanner Pro",
+    description: "Powerful scanner tool that helps you find the best trade opportunities with custom presets. Identify patterns and trends with institutional-grade algorithms and historical backtesting.",
+    imageUrl: "https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/market-scanner"
   },
   {
-    id: "fallback-3",
+    id: "resource-3",
     category: "productivity",
     categoryLabel: "Productivity",
-    title: "Trading Journal",
-    description: "Keep track of your trades, analyze your performance, and improve your strategy.",
-    imageUrl: "https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    link: "https://www.motionwealthgroup.com/resources"
+    title: "Advanced Trading Journal",
+    description: "Record, track, and analyze your trades to improve your performance and identify patterns. Includes AI-powered trade analysis to identify strengths and weaknesses in your trading strategy.",
+    imageUrl: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?q=80&w=1469&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/trading-journal"
+  },
+  {
+    id: "resource-4",
+    category: "education",
+    categoryLabel: "Education",
+    title: "Master the Markets Course",
+    description: "Comprehensive trading course covering technical analysis, risk management, and trading psychology. Learn from professional traders with years of experience in various market conditions.",
+    imageUrl: "https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/trading-course"
+  },
+  {
+    id: "resource-5",
+    category: "risk",
+    categoryLabel: "Risk Management",
+    title: "Position Size Calculator",
+    description: "Calculate optimal position sizes based on your risk tolerance and account size. Maximize returns while minimizing risk with advanced portfolio management tools.",
+    imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/position-calculator"
+  },
+  {
+    id: "resource-6",
+    category: "news",
+    categoryLabel: "News & Data",
+    title: "Financial News Alert Service",
+    description: "Get real-time alerts for market-moving news and events tailored to your watchlist. Includes earnings reports, economic data releases, and expert analysis.",
+    imageUrl: "https://images.unsplash.com/photo-1565514020179-026b5f8dbcf5?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/news-alerts"
+  },
+  {
+    id: "resource-7",
+    category: "trading",
+    categoryLabel: "Trading Platform",
+    title: "Charting Suite Pro",
+    description: "Professional-grade charting software with over 100 indicators, drawing tools, and custom scripts. Includes cloud synchronization across devices and real-time alerts.",
+    imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/charting-suite"
+  },
+  {
+    id: "resource-8",
+    category: "education",
+    categoryLabel: "Education",
+    title: "Options Trading Masterclass",
+    description: "Learn advanced options strategies from professional traders with over 20 years of experience. Includes live trading sessions and personalized feedback on your trades.",
+    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/options-masterclass"
+  },
+  {
+    id: "resource-9",
+    category: "analysis",
+    categoryLabel: "Analysis Tool",
+    title: "AI Market Predictor",
+    description: "Cutting-edge artificial intelligence that analyzes market patterns and predicts potential price movements with remarkable accuracy. Train the AI with your own successful trades.",
+    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1470&auto=format&fit=crop",
+    link: "https://www.youraffiliatelink.com/ai-predictor"
   }
 ];
 
@@ -79,21 +133,22 @@ export default function ResourcesPage() {
               link: resource.link
             }));
           
+          // If we have valid Firebase resources, use them, otherwise use fallback
           if (validResources.length > 0) {
             setResources(validResources);
           } else {
-            // If no valid resources, use fallback
-            console.log("No valid resources found in Firebase, using fallback resources");
+            console.log("No valid resources found in Firebase, using complete fallback resources");
             setResources(fallbackResources);
           }
         } else {
-          // If Firebase returns no resources or if there's an authentication issue
-          console.log("No resources found in Firebase, using fallback resources");
+          // If Firebase returns no resources, use the complete fallback set
+          console.log("No resources found in Firebase, using complete fallback resources");
           setResources(fallbackResources);
         }
       } catch (error) {
         console.error("Error fetching resources:", error);
-        // Use fallback resources in case of any error
+        // Always use the complete fallback resources in case of any error
+        console.log("Using complete fallback resources due to error");
         setResources(fallbackResources);
       } finally {
         setLoading(false);
@@ -195,7 +250,7 @@ export default function ResourcesPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-400">No resources found in this category. Resources will be displayed here once added through the admin dashboard.</p>
+            <p className="text-gray-400">No resources found in this category.</p>
           </div>
         )}
       </section>
