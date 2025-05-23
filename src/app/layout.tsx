@@ -47,8 +47,15 @@ export const metadata: Metadata = {
     images: ['/twitter-image.jpg'],
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
+    icon: [
+      { url: '/logo.png', sizes: 'any' },
+      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo.png', sizes: '180x180' },
+    ],
+    shortcut: '/logo.png',
   },
   metadataBase: new URL('https://motionwealthgroup.com'),
   alternates: {
