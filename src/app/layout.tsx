@@ -2,11 +2,19 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import MetadataManager from "@/components/MetadataManager";
 import CookieConsent from "@/components/CookieConsent";
 import JsonLd from "@/components/JsonLd";
 import { generateOrganizationSchema, generateWebsiteSchema } from "@/lib/utils/structuredData";
+
+// Add viewport configuration for mobile optimization
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+}
 
 // Define default metadata for the application
 export const metadata: Metadata = {
@@ -108,7 +116,7 @@ export default function RootLayout({
           <JsonLd data={organizationSchema} />
           <JsonLd data={websiteSchema} />
           <Navbar />
-          <main className="flex-1 container mx-auto px-4 py-4">{children}</main>
+          <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-4">{children}</main>
           <Footer />
           <CookieConsent />
           <MetadataManager />

@@ -45,28 +45,28 @@ export default function ContactForm() {
   return (
     <form 
       ref={formRef} 
-      className="bg-mwg-card border border-mwg-border rounded-lg p-6 flex flex-col gap-4" 
+      className="bg-mwg-card border border-mwg-border rounded-lg p-4 sm:p-6 flex flex-col gap-4" 
       onSubmit={handleSubmit}
     >
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         <input 
           type="text" 
           name="name"
           placeholder="Name" 
-          className="w-full px-4 py-2 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+          className="w-full px-4 py-3 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent min-h-[44px]"
           required 
         />
         <input 
           type="email" 
           name="email"
           placeholder="Email" 
-          className="w-full px-4 py-2 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+          className="w-full px-4 py-3 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent min-h-[44px]"
           required 
         />
       </div>
       <select 
         name="subject"
-        className="px-4 py-2 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+        className="px-4 py-3 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text focus:outline-none focus:ring-2 focus:ring-mwg-accent min-h-[44px]"
         required
       >
         <option value="">Select a subject</option>
@@ -79,25 +79,25 @@ export default function ContactForm() {
         name="message"
         placeholder="Message" 
         rows={4} 
-        className="px-4 py-2 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent"
+        className="px-4 py-3 rounded-md bg-mwg-dark border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent resize-y min-h-[120px]"
         required
       />
       
       {submitSuccess && (
-        <div className="bg-green-900/30 border border-green-600 text-green-400 p-3 rounded-md">
+        <div className="bg-green-900/30 border border-green-600 text-green-400 p-3 rounded-md text-sm">
           Your message has been sent successfully. We'll get back to you soon.
         </div>
       )}
       
       {submitError && (
-        <div className="bg-red-900/30 border border-red-600 text-red-400 p-3 rounded-md">
+        <div className="bg-red-900/30 border border-red-600 text-red-400 p-3 rounded-md text-sm">
           {submitError}
         </div>
       )}
       
       <button 
         type="submit" 
-        className="bg-mwg-accent text-mwg-dark font-semibold px-6 py-2 rounded-md shadow hover:brightness-110 transition mt-2 disabled:opacity-50"
+        className="bg-mwg-accent text-mwg-dark font-semibold px-6 py-3 rounded-md shadow hover:brightness-110 transition mt-2 disabled:opacity-50 min-h-[44px]"
         disabled={isSubmitting}
       >
         {isSubmitting ? 'Sending...' : 'Send Message'}

@@ -178,22 +178,22 @@ export default function BlogPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="w-full flex flex-col items-center pt-12 pb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-2">
+      <section className="w-full flex flex-col items-center pt-8 sm:pt-12 pb-6 sm:pb-8 px-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 sm:mb-2">
           My Trading <span className="text-mwg-accent">Journey</span>
         </h1>
-        <p className="text-lg text-mwg-muted mb-8 text-center max-w-2xl">
+        <p className="text-base sm:text-lg text-mwg-muted mb-6 sm:mb-8 text-center max-w-2xl px-4">
           Insights, analyses, and lessons from the world of trading and investments.
         </p>
       </section>
 
       {/* Filters and Search */}
-      <section className="w-full max-w-6xl mx-auto mb-8 px-4">
-        <div className="flex flex-col md:flex-row justify-between gap-4">
+      <section className="w-full max-w-6xl mx-auto mb-6 sm:mb-8 px-4">
+        <div className="flex flex-col gap-4">
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2">
             <button 
-              className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeCategory === "All" ? "bg-mwg-accent text-black" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
+              className={`px-4 py-3 rounded-full text-sm font-medium transition min-h-[44px] ${activeCategory === "All" ? "bg-mwg-accent text-black" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
               onClick={() => setActiveCategory("All")}
             >
               All
@@ -201,7 +201,7 @@ export default function BlogPage() {
             {categories.map(category => (
               <button 
                 key={category}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeCategory === category ? "bg-mwg-accent text-white" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
+                className={`px-4 py-3 rounded-full text-sm font-medium transition min-h-[44px] ${activeCategory === category ? "bg-mwg-accent text-white" : "bg-mwg-card hover:bg-mwg-accent/20"}`}
                 onClick={() => setActiveCategory(category)}
               >
                 {category}
@@ -210,15 +210,15 @@ export default function BlogPage() {
           </div>
 
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative w-full sm:w-auto sm:max-w-md">
             <input
               type="text"
               placeholder="Search posts..."
-              className="w-full md:w-64 p-2 pl-8 rounded-md bg-mwg-card border border-mwg-border"
+              className="w-full p-3 pl-10 rounded-md bg-mwg-card border border-mwg-border text-mwg-text placeholder-mwg-muted focus:outline-none focus:ring-2 focus:ring-mwg-accent min-h-[44px]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <svg className="absolute left-2 top-2.5 h-4 w-4 text-mwg-muted" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="absolute left-3 top-3.5 h-4 w-4 text-mwg-muted" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
             </svg>
           </div>
@@ -226,23 +226,23 @@ export default function BlogPage() {
       </section>
 
       {/* Blog Posts Grid */}
-      <section className="w-full max-w-6xl mx-auto py-8 px-4">
+      <section className="w-full max-w-6xl mx-auto py-6 sm:py-8 px-4">
         {filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredPosts.map(post => (
               <div key={post.id} className="bg-mwg-card border border-mwg-border rounded-lg overflow-hidden shadow-md">
                 {post.img && (
-                  <div className="relative w-full h-48">
+                  <div className="relative w-full h-40 sm:h-48">
                     <Image 
                       src={post.img} 
                       alt={post.title} 
                       fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover" 
                     />
                   </div>
                 )}
-                <div className="p-4">
+                <div className="p-4 sm:p-4">
                   <div className="flex gap-2 items-center mb-1">
                     <div className="text-xs text-mwg-accent font-semibold">{post.category}</div>
                     {post.content && (
@@ -251,10 +251,10 @@ export default function BlogPage() {
                       </div>
                     )}
                   </div>
-                  <div className="text-lg font-bold text-mwg-text mb-1">{post.title}</div>
+                  <div className="text-base sm:text-lg font-bold text-mwg-text mb-1 line-clamp-2">{post.title}</div>
                   <div className="text-xs text-mwg-muted mb-2">{formatDate(post.date)}</div>
                   <div className="text-mwg-muted text-sm mb-4 line-clamp-3">{post.desc}</div>
-                  <Link href={`/blog/${post.id}`} className="text-mwg-accent text-sm font-medium hover:underline flex items-center gap-1">
+                  <Link href={`/blog/${post.id}`} className="text-mwg-accent text-sm font-medium hover:underline flex items-center gap-1 min-h-[44px] items-center">
                     Read More <span>→</span>
                   </Link>
                 </div>
@@ -262,8 +262,8 @@ export default function BlogPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-mwg-muted">No blog posts found. Please try a different search or category.</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-mwg-muted text-sm sm:text-base">No blog posts found. Please try a different search or category.</p>
           </div>
         )}
       </section>

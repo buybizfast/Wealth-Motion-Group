@@ -61,25 +61,28 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-mwg-dark border-t border-mwg-border py-6">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:justify-between items-center">
-          <p className="text-mwg-muted text-sm">© {new Date().getFullYear()} Motion Wealth Group. All rights reserved.</p>
-          <div className="mt-4 md:mt-0">
+    <footer className="bg-mwg-dark border-t border-mwg-border py-4 sm:py-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:justify-between items-center gap-4">
+          <p className="text-mwg-muted text-xs sm:text-sm text-center md:text-left order-2 md:order-1">
+            © {new Date().getFullYear()} Motion Wealth Group. All rights reserved.
+          </p>
+          <div className="order-1 md:order-2">
             {/* Add onClick handler and ensure href is absolute */}
             <a 
               href={logoData.linkUrl}
               onClick={handleLogoClick}
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-block cursor-pointer"
+              className="inline-block cursor-pointer hover:opacity-90 transition-opacity"
             >
               <Image 
                 src={logoData.imageUrl} 
                 alt="Jacq Bots Logo Banner" 
-                width={240} 
-                height={80} 
-                className="object-contain"
+                width={180} 
+                height={60}
+                sizes="(max-width: 640px) 180px, 240px"
+                className="object-contain w-auto h-12 sm:h-16" 
               />
             </a>
           </div>

@@ -10,23 +10,65 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Mobile-optimized line clamping */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Smooth scrolling for mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Mobile touch optimization */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Improve focus states for accessibility */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #f7b32b;
+    outline-offset: 2px;
+  }
 }
 
 /* Rich text content styling */
 .rich-content h1 {
-  @apply text-3xl font-bold mb-4;
+  @apply text-2xl sm:text-3xl font-bold mb-4;
 }
 
 .rich-content h2 {
-  @apply text-2xl font-bold mb-3;
+  @apply text-xl sm:text-2xl font-bold mb-3;
 }
 
 .rich-content h3 {
-  @apply text-xl font-bold mb-2;
+  @apply text-lg sm:text-xl font-bold mb-2;
 }
 
 .rich-content p {
-  @apply mb-4;
+  @apply mb-4 text-sm sm:text-base;
 }
 
 .rich-content ul, .rich-content ol {
@@ -42,7 +84,7 @@ body {
 }
 
 .rich-content blockquote {
-  @apply border-l-4 border-mwg-accent pl-4 italic my-4;
+  @apply border-l-4 border-mwg-accent pl-4 italic my-4 text-sm sm:text-base;
 }
 
 .rich-content a {
@@ -54,7 +96,7 @@ body {
 }
 
 .rich-content pre {
-  @apply bg-mwg-card p-4 rounded-md my-4 overflow-x-auto;
+  @apply bg-mwg-card p-4 rounded-md my-4 overflow-x-auto text-sm;
 }
 
 .rich-content code {
