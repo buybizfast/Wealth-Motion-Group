@@ -20,6 +20,37 @@ interface BlogPost {
   author?: string;
 }
 
+// Sample fallback posts to display if Firebase fetch fails
+const fallbackPosts: BlogPost[] = [
+  {
+    id: "fallback-1",
+    title: "Understanding Market Analysis",
+    desc: "An introduction to fundamental techniques used in market analysis for trading success.",
+    category: "Trading",
+    date: new Date().toISOString(),
+    img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    author: "Motion Wealth Group"
+  },
+  {
+    id: "fallback-2",
+    title: "Risk Management Essentials",
+    desc: "Learn the core principles of managing risk in your trading portfolio.",
+    category: "Strategy",
+    date: new Date(Date.now() - 86400000).toISOString(),
+    img: "https://images.unsplash.com/photo-1543286386-713bdd548da4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    author: "Motion Wealth Group"
+  },
+  {
+    id: "fallback-3",
+    title: "The Psychology of Trading",
+    desc: "How mental discipline and emotional control impact your trading decisions.",
+    category: "Psychology",
+    date: new Date(Date.now() - 2 * 86400000).toISOString(),
+    img: "https://images.unsplash.com/photo-1579226905180-636b76d96082?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    author: "Motion Wealth Group"
+  }
+];
+
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
@@ -34,21 +65,45 @@ export default function BlogPage() {
         setLoading(true);
         const fetchedPosts = await getDocuments("blogs");
         
-        // Sort by date (newest first)
-        const sortedPosts = [...fetchedPosts].sort((a: any, b: any) => {
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
-        });
-        
-        setPosts(sortedPosts);
-        setFilteredPosts(sortedPosts);
+        // If we got posts from Firebase, use them
+        if (fetchedPosts && fetchedPosts.length > 0) {
+          // Sort by date (newest first)
+          const sortedPosts = [...fetchedPosts].sort((a: any, b: any) => {
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          });
+          
+          setPosts(sortedPosts);
+          setFilteredPosts(sortedPosts);
 
-        // Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(sortedPosts.map((post: BlogPost) => post.category))
-        );
-        setCategories(uniqueCategories);
+          // Extract unique categories
+          const uniqueCategories = Array.from(
+            new Set(sortedPosts.map((post: BlogPost) => post.category))
+          );
+          setCategories(uniqueCategories);
+        } else {
+          // If Firebase returns no posts or if there's an authentication issue
+          // Use fallback posts
+          console.log("No posts found in Firebase, using fallback posts");
+          setPosts(fallbackPosts);
+          setFilteredPosts(fallbackPosts);
+          
+          // Extract categories from fallback posts
+          const uniqueCategories = Array.from(
+            new Set(fallbackPosts.map(post => post.category))
+          );
+          setCategories(uniqueCategories);
+        }
       } catch (error) {
         console.error("Error fetching blog posts:", error);
+        // Use fallback posts in case of any error
+        setPosts(fallbackPosts);
+        setFilteredPosts(fallbackPosts);
+        
+        // Extract categories from fallback posts
+        const uniqueCategories = Array.from(
+          new Set(fallbackPosts.map(post => post.category))
+        );
+        setCategories(uniqueCategories);
       } finally {
         setLoading(false);
       }

@@ -18,41 +18,48 @@ interface ContactInfo {
 
 const CONTACT_COLLECTION = 'contactInfo';
 
+// Default contact information to use as fallback
+const defaultContactInfo: ContactInfo = {
+  email: "contact@motionwealthgroup.com",
+  socialLinks: [
+    {
+      name: "LinkedIn",
+      value: "Motion Wealth Group",
+      url: "https://linkedin.com/in/motionwealthgroup",
+    },
+    {
+      name: "Twitter",
+      value: "@motionwealthgrp",
+      url: "https://twitter.com/motionwealthgrp",
+    },
+    {
+      name: "Instagram",
+      value: "@motionwealthgroup",
+      url: "https://instagram.com/motionwealthgroup",
+    },
+  ],
+};
+
 export default function ContactPage() {
-  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  const [contactInfo, setContactInfo] = useState<ContactInfo>(defaultContactInfo);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchContactInfo() {
       try {
         const docs = await getDocuments(CONTACT_COLLECTION);
-        if (docs.length > 0) {
+        if (docs && docs.length > 0) {
+          // Use the first contact info document from Firebase
           setContactInfo(docs[0] as ContactInfo);
         } else {
-          // Fallback to default data if no document exists
-          setContactInfo({
-            email: "contact@motionwealthgroup.com",
-            socialLinks: [
-              {
-                name: "LinkedIn",
-                value: "Connect on LinkedIn",
-                url: "#",
-              },
-              {
-                name: "Twitter",
-                value: "@motionwealthgrp",
-                url: "https://twitter.com/motionwealthgrp",
-              },
-              {
-                name: "Instagram",
-                value: "@motionwealthgroup",
-                url: "https://instagram.com/motionwealthgroup",
-              },
-            ],
-          });
+          // If no contact info in Firebase, use default
+          console.log("No contact info found in Firebase, using default");
+          setContactInfo(defaultContactInfo);
         }
       } catch (error) {
         console.error("Error fetching contact info:", error);
+        // Use default contact info in case of error
+        setContactInfo(defaultContactInfo);
       } finally {
         setLoading(false);
       }
@@ -82,7 +89,7 @@ export default function ContactPage() {
               
               {loading ? (
                 <div className="text-mwg-muted">Loading contact information...</div>
-              ) : contactInfo ? (
+              ) : (
                 <ul className="text-mwg-muted text-sm space-y-2">
                   <li><span className="font-semibold text-mwg-accent">Email</span>: {contactInfo.email}</li>
                   {contactInfo.socialLinks.map((link, index) => (
@@ -98,8 +105,6 @@ export default function ContactPage() {
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <div className="text-mwg-muted">Could not load contact information.</div>
               )}
             </div>
           </div>

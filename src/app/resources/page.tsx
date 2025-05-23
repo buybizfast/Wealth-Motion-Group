@@ -16,6 +16,37 @@ interface Resource {
   link: string;
 }
 
+// Fallback resources in case Firebase fetch fails
+const fallbackResources: Resource[] = [
+  {
+    id: "fallback-1",
+    category: "trading",
+    categoryLabel: "Trading Platform",
+    title: "TradingView",
+    description: "Advanced charting platform with social networking features for traders and investors.",
+    imageUrl: "https://images.unsplash.com/photo-1642790405100-0f89dc73a173?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    link: "https://www.tradingview.com"
+  },
+  {
+    id: "fallback-2",
+    category: "education",
+    categoryLabel: "Education",
+    title: "Trading Courses",
+    description: "Comprehensive courses on trading strategies, technical analysis, and risk management.",
+    imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    link: "https://www.motionwealthgroup.com/resources"
+  },
+  {
+    id: "fallback-3",
+    category: "productivity",
+    categoryLabel: "Productivity",
+    title: "Trading Journal",
+    description: "Keep track of your trades, analyze your performance, and improve your strategy.",
+    imageUrl: "https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    link: "https://www.motionwealthgroup.com/resources"
+  }
+];
+
 export default function ResourcesPage() {
   const [activeCategory, setActiveCategory] = useState<ResourceCategory>('all');
   const [resources, setResources] = useState<Resource[]>([]);
@@ -25,29 +56,45 @@ export default function ResourcesPage() {
     async function fetchResources() {
       try {
         const fetchedResources = await getDocuments("resources");
-        // Ensure all resources have the required properties
-        const validResources = fetchedResources
-          .filter((resource: any) => 
-            resource && 
-            resource.title && 
-            resource.category && 
-            resource.categoryLabel && 
-            resource.description && 
-            resource.link
-          )
-          .map((resource: any) => ({
-            id: resource.id || undefined,
-            category: resource.category as ResourceCategory,
-            categoryLabel: resource.categoryLabel,
-            title: resource.title,
-            description: resource.description,
-            imageUrl: resource.imageUrl || null,
-            link: resource.link
-          }));
         
-        setResources(validResources);
+        // If we got resources from Firebase, use them
+        if (fetchedResources && fetchedResources.length > 0) {
+          // Ensure all resources have the required properties
+          const validResources = fetchedResources
+            .filter((resource: any) => 
+              resource && 
+              resource.title && 
+              resource.category && 
+              resource.categoryLabel && 
+              resource.description && 
+              resource.link
+            )
+            .map((resource: any) => ({
+              id: resource.id || undefined,
+              category: resource.category as ResourceCategory,
+              categoryLabel: resource.categoryLabel,
+              title: resource.title,
+              description: resource.description,
+              imageUrl: resource.imageUrl || null,
+              link: resource.link
+            }));
+          
+          if (validResources.length > 0) {
+            setResources(validResources);
+          } else {
+            // If no valid resources, use fallback
+            console.log("No valid resources found in Firebase, using fallback resources");
+            setResources(fallbackResources);
+          }
+        } else {
+          // If Firebase returns no resources or if there's an authentication issue
+          console.log("No resources found in Firebase, using fallback resources");
+          setResources(fallbackResources);
+        }
       } catch (error) {
         console.error("Error fetching resources:", error);
+        // Use fallback resources in case of any error
+        setResources(fallbackResources);
       } finally {
         setLoading(false);
       }
