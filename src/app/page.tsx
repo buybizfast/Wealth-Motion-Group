@@ -197,14 +197,14 @@ export default function HomePage() {
         <p className="text-base sm:text-lg md:text-xl text-mwg-muted mb-6 sm:mb-6 text-center max-w-2xl px-4">
           {pageContent.hero?.subtitle || "Building wealth through strategic investment insights"}
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 w-full max-w-sm sm:max-w-none">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-6 sm:mb-8 w-full max-w-sm sm:max-w-none sm:justify-center sm:items-center">
           <Link href="/resources" className="w-full sm:w-auto">
-            <button className="w-full sm:w-auto bg-mwg-accent text-mwg-dark font-semibold px-6 py-3 rounded-md shadow hover:brightness-110 transition min-h-[44px]">
+            <button className="w-full sm:w-auto bg-mwg-accent text-mwg-dark font-semibold px-8 py-3 rounded-md shadow hover:brightness-110 transition min-h-[44px]">
               {pageContent.hero?.buttonText || "Learn More"}
             </button>
           </Link>
           <Link href="/contact" className="w-full sm:w-auto">
-            <button className="w-full sm:w-auto bg-mwg-card text-mwg-accent font-semibold px-6 py-3 rounded-md border border-mwg-accent hover:bg-mwg-accent hover:text-mwg-dark transition min-h-[44px]">
+            <button className="w-full sm:w-auto bg-mwg-card text-mwg-accent font-semibold px-8 py-3 rounded-md border border-mwg-accent hover:bg-mwg-accent hover:text-mwg-dark transition min-h-[44px]">
               Get in Touch
             </button>
           </Link>
