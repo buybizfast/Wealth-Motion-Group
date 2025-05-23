@@ -7,10 +7,10 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 // Default values for Firebase config - replace with your own Firebase project values
-const DEFAULT_API_KEY = "AIzaSyDntFUt_tbDNXJXrQ6d-v8n6CL5fOZCmj4";
-const DEFAULT_AUTH_DOMAIN = "wealth-motion-group.firebaseapp.com";
-const DEFAULT_PROJECT_ID = "wealth-motion-group";
-const DEFAULT_STORAGE_BUCKET = "wealth-motion-group.appspot.com";
+const DEFAULT_API_KEY = "AIzaSyD-LXcBrO9lkjAGZ3g3F8m8nRAGHqH8yz0";
+const DEFAULT_AUTH_DOMAIN = "motion-website-250fa.firebaseapp.com";
+const DEFAULT_PROJECT_ID = "motion-website-250fa";
+const DEFAULT_STORAGE_BUCKET = "motion-website-250fa.appspot.com";
 const DEFAULT_MESSAGING_SENDER_ID = "347883378493";
 const DEFAULT_APP_ID = "1:347883378493:web:67a65e9deb2e122f3f2f8f";
 const DEFAULT_MEASUREMENT_ID = "G-4B9NYNW5WF";
