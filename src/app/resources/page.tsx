@@ -108,21 +108,30 @@ export default function ResourcesPage() {
   
   useEffect(() => {
     async function fetchResources() {
+      setLoading(true);
+      console.log("Starting resource fetch...");
+      
       try {
         const fetchedResources = await getDocuments("resources");
+        console.log("Fetched resources from Firebase:", fetchedResources?.length || 0);
         
         // If we got resources from Firebase, use them
         if (fetchedResources && fetchedResources.length > 0) {
-          // Ensure all resources have the required properties
+          // Ensure all resources have the required properties and map them properly
           const validResources = fetchedResources
-            .filter((resource: any) => 
-              resource && 
-              resource.title && 
-              resource.category && 
-              resource.categoryLabel && 
-              resource.description && 
-              resource.link
-            )
+            .filter((resource: any) => {
+              const isValid = resource && 
+                resource.title && 
+                resource.category && 
+                resource.categoryLabel && 
+                resource.description && 
+                resource.link;
+              
+              if (!isValid) {
+                console.log("Invalid resource filtered out:", resource);
+              }
+              return isValid;
+            })
             .map((resource: any) => ({
               id: resource.id || undefined,
               category: resource.category as ResourceCategory,
@@ -133,22 +142,25 @@ export default function ResourcesPage() {
               link: resource.link
             }));
           
-          // If we have valid Firebase resources, use them, otherwise use fallback
+          console.log("Valid resources processed:", validResources.length);
+          
+          // Always use Firebase data if available and valid
           if (validResources.length > 0) {
+            console.log("Using Firebase resources");
             setResources(validResources);
           } else {
-            console.log("No valid resources found in Firebase, using complete fallback resources");
+            console.log("No valid Firebase resources, using fallback");
             setResources(fallbackResources);
           }
         } else {
           // If Firebase returns no resources, use the complete fallback set
-          console.log("No resources found in Firebase, using complete fallback resources");
+          console.log("No Firebase resources found, using fallback");
           setResources(fallbackResources);
         }
       } catch (error) {
-        console.error("Error fetching resources:", error);
+        console.error("Error fetching resources from Firebase:", error);
         // Always use the complete fallback resources in case of any error
-        console.log("Using complete fallback resources due to error");
+        console.log("Using fallback resources due to error");
         setResources(fallbackResources);
       } finally {
         setLoading(false);
@@ -177,6 +189,13 @@ export default function ResourcesPage() {
 
   return (
     <div className="flex flex-col items-center w-full bg-[#0c1720] text-white min-h-screen">
+      {/* Debug Info - only show in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="w-full bg-red-900 text-white p-2 text-xs">
+          <strong>DEBUG:</strong> Loaded {resources.length} resources, Categories: {categories.join(', ')}
+        </div>
+      )}
+      
       {/* Hero Section */}
       <section className="w-full flex flex-col items-center pt-16 pb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
