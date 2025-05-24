@@ -31,9 +31,15 @@ export default function AdminPage() {
     }
     
     console.log("Admin page - User authenticated:", user.email);
+    console.log("Admin page - Admin emails list:", ADMIN_EMAILS);
+    console.log("Admin page - Email comparison results:", ADMIN_EMAILS.map(email => ({
+      adminEmail: email,
+      userEmail: user.email,
+      match: email.toLowerCase() === user.email?.toLowerCase()
+    })));
     
     // Check if user email is in allowed admin emails - DIRECT CLIENT-SIDE CHECK ONLY
-    if (user.email && ADMIN_EMAILS.includes(user.email)) {
+    if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
       console.log("Admin page - User is an admin - displaying dashboard");
       // Force set admin to true with no API calls
       setIsAdmin(true);

@@ -188,7 +188,7 @@ export default function AdminDashboard() {
         const authInstance = getAuth();
         const result = await getRedirectResult(authInstance);
         if (result?.user) {
-          if (result.user.email && ADMIN_EMAILS.includes(result.user.email)) {
+          if (result.user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === result.user.email?.toLowerCase())) {
             router.push("/admin");
           }
         }
@@ -619,7 +619,7 @@ export default function AdminDashboard() {
   if (!user) return <div className="p-8 text-center">Please sign in as admin to access the dashboard.</div>;
   
   // DIRECTLY CHECK ADMIN STATUS WITHOUT API CALLS
-  if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
+  if (!user.email || !ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
     console.log("AdminDashboard - Access denied for non-admin:", user.email);
     return <div className="p-8 text-center text-red-600">You do not have admin access.</div>;
   }

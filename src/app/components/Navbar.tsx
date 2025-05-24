@@ -31,7 +31,7 @@ export default function Navbar() {
   
   useEffect(() => {
     if (user && user.email) {
-      const isAdminUser = ADMIN_EMAILS.includes(user.email);
+      const isAdminUser = ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase());
       console.log(`Navbar - Checking admin status for ${user.email}: ${isAdminUser ? 'Admin' : 'Not Admin'}`);
       setIsAdmin(isAdminUser);
     } else {

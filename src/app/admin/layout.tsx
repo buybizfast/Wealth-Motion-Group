@@ -17,55 +17,27 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     // Check if the user is authenticated and is an admin
-    const checkAdmin = async () => {
+    const checkAdmin = () => {
       if (loading) return;
       
       if (!user) {
-        console.log('No user found, redirecting to home');
+        console.log('AdminLayout - No user found, redirecting to home');
         router.push('/');
         return;
       }
       
-      console.log('Checking admin status for user:', user.email);
+      console.log('AdminLayout - Checking admin status for user:', user.email);
+      console.log('AdminLayout - Admin emails list:', ADMIN_EMAILS);
+      console.log('AdminLayout - User email type:', typeof user.email);
+      console.log('AdminLayout - User email raw:', JSON.stringify(user.email));
       
-      // Check if user email is in the admin list (case insensitive)
+      // Check if user email is in the admin list (case insensitive) - CLIENT-SIDE ONLY
       if (user.email && ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
-        console.log('User is authorized as admin on client-side');
-        
-        // Also verify with the server
-        try {
-          const response = await fetch('/api/auth/check-admin', {
-            cache: 'no-store', // Prevent caching issues
-            credentials: 'same-origin' // Ensure credentials are sent with the request
-          });
-          const data = await response.json();
-          
-          if (data.isAdmin) {
-            console.log('Server confirmed admin status');
-            setIsVerifying(false);
-          } else {
-            console.log('Server rejected admin status');
-            // In development, don't redirect to make debugging easier
-            if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
-              console.log('Development mode: proceeding despite admin rejection');
-              setIsVerifying(false);
-            } else {
-              router.push('/');
-            }
-          }
-        } catch (error) {
-          console.error('Error verifying admin status with server:', error);
-          // In development, don't redirect to make debugging easier
-          if (process.env.NODE_ENV && process.env.NODE_ENV.includes('dev')) {
-            console.log('Development mode: proceeding despite error');
-            setIsVerifying(false);
-          } else {
-            router.push('/');
-          }
-        }
+        console.log('AdminLayout - User is authorized as admin');
+        setIsVerifying(false);
       } else {
         // Not an admin, redirect to home
-        console.log('User is not an admin, redirecting to home');
+        console.log('AdminLayout - User is not an admin, redirecting to home');
         router.push('/');
       }
     };
@@ -76,7 +48,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   if (loading || isVerifying) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mwg-accent"></div>
+        <p className="ml-4">Verifying admin access...</p>
       </div>
     );
   }

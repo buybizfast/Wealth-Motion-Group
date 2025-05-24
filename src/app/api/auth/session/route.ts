@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     });
     
     // If user is admin, set admin_status cookie
-    if (decodedToken.email && ADMIN_EMAILS.includes(decodedToken.email)) {
+    if (decodedToken.email && ADMIN_EMAILS.some(email => email.toLowerCase() === decodedToken.email?.toLowerCase())) {
       response.cookies.set({
         name: 'admin_status',
         value: 'true',

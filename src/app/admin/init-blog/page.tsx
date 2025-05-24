@@ -86,7 +86,7 @@ export default function InitBlogPage() {
   }
 
   const ADMIN_EMAILS = ["Kenneth.j1698@gmail.com", "jpotts2@mail.bradley.edu"];
-  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
+  if (!user || !user.email || !ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
