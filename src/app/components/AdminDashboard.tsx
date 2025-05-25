@@ -10,6 +10,7 @@ import ensureResources from "@/scripts/ensureResources";
 import RichTextEditor from "./RichTextEditor";
 import ContactInfoManager from "./ContactInfoManager";
 import AboutPageEditor from "./AboutPageEditor";
+import HomePageEditor from "./HomePageEditor";
 
 const BLOG_COLLECTION = "blogs";
 const CONTENT_COLLECTION = "pageContent";
@@ -1115,6 +1116,12 @@ export default function AdminDashboard() {
           )}
           
           <h2 className="text-xl font-bold mb-4">Page Content Management</h2>
+          
+          {/* Home Page Editor */}
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 className="font-bold text-lg mb-4">Home Page</h3>
+            <HomePageEditor />
+          </div>
           
           {/* About Page Editor */}
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">

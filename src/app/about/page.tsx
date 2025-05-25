@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getDocuments } from "@/lib/firebase/firebaseUtils";
 import MetadataManager from "@/components/MetadataManager";
+import Image from "next/image";
 
 // Default content as fallback
 const defaultContent = {
@@ -20,13 +21,15 @@ const defaultContent = {
     
     <h3>Why We're Different</h3>
     <p>Explain what sets you apart from other trading educators and financial advisors.</p>
-  `
+  `,
+  featuredImage: null
 };
 
 interface AboutContent {
   title: string;
   subtitle: string;
   content: string;
+  featuredImage?: string | null;
 }
 
 const fetchAboutContent = async (): Promise<AboutContent> => {
@@ -100,11 +103,27 @@ export default function AboutPage() {
         </p>
       </section>
       
+      {/* Featured Image Section */}
+      {pageContent.featuredImage && (
+        <section className="w-full max-w-4xl mx-auto px-4 mb-8">
+          <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src={pageContent.featuredImage}
+              alt={pageContent.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              className="object-cover"
+              priority
+            />
+          </div>
+        </section>
+      )}
+      
       {/* Content Section */}
       <section className="w-full max-w-4xl mx-auto py-6 sm:py-8 px-4">
         <div className="bg-mwg-card border border-mwg-border rounded-lg p-6 sm:p-8 shadow-md">
           <div 
-            className="prose prose-invert max-w-none text-mwg-muted"
+            className="prose prose-invert max-w-none text-mwg-muted prose-headings:text-mwg-accent prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
             dangerouslySetInnerHTML={{ __html: pageContent.content }}
           />
         </div>
