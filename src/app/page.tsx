@@ -11,18 +11,18 @@ import { generateBlogPostSchema } from "@/lib/utils/structuredData";
 // Default content as fallback
 const defaultContent = {
   hero: {
-    title: "Motion Wealth Group",
-    subtitle: "Building wealth through strategic investment insights",
+    title: "Welcome to Motion Wealth Group",
+    subtitle: "We help everyday people take control of their financial future through smart trading and clear investment insights. Whether you're just getting started or leveling up your skills, we're here to make the markets simple, practical, and real.",
     buttonText: "Learn More"
   },
   about: {
-    title: "About Motion Wealth Group",
-    content: "Motion Wealth Group helps people learn about trading and investing. We give clear information so you can make better financial decisions.",
+    title: "We stand for:",
+    content: "",
     values: [
-      "Clear and honest advice",
-      "Always learning new things",
-      "Respecting your comfort with risk",
-      "Building wealth that lasts"
+      "Transparent education",
+      "Steady growth over hype", 
+      "Risk with intention",
+      "Wealth that lasts"
     ]
   },
   cta: {
@@ -213,16 +213,12 @@ export default function HomePage() {
       
       {/* About Section */}
       <section className="w-full flex flex-col items-center py-6 sm:py-8 px-4">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-4">
-          <span className="text-mwg-accent">About</span> {pageContent.about?.title?.split(' ').slice(1).join(' ') || "Motion Wealth Group"}
-        </h2>
         <div className="bg-mwg-card border border-mwg-border rounded-lg p-4 sm:p-6 max-w-2xl text-mwg-muted text-sm sm:text-base shadow-md">
-          <p className="mb-4">{pageContent.about?.content || defaultContent.about.content}</p>
-          <p className="mb-4">Markets can be hard to understand with too much information. We make things simple with clear analysis and useful tips. We use our experience and skills to help you make better trading decisions.</p>
-          <p className="mb-4">We help both new and skilled traders. Motion Wealth Group gives you the tools and advice you need to reach your money goals. We focus on growth and steady progress.</p>
           <div>
-            <h3 className="font-semibold text-mwg-accent mb-2">Our Core Values</h3>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-1 text-xs sm:text-sm list-none">
+            <h3 className="font-semibold text-mwg-accent mb-4 text-center text-lg">
+              {pageContent.about?.title || "We stand for:"}
+            </h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-2 text-sm sm:text-base list-none">
               {(pageContent.about?.values || defaultContent.about.values).map((value: string, idx: number) => (
                 <li key={idx} className="flex items-center gap-2">
                   <span className="text-mwg-accent flex-shrink-0">●</span> 

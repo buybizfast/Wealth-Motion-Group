@@ -9,6 +9,7 @@ import initializeResources from "@/scripts/initializeResources";
 import ensureResources from "@/scripts/ensureResources";
 import RichTextEditor from "./RichTextEditor";
 import ContactInfoManager from "./ContactInfoManager";
+import AboutPageEditor from "./AboutPageEditor";
 
 const BLOG_COLLECTION = "blogs";
 const CONTENT_COLLECTION = "pageContent";
@@ -55,7 +56,7 @@ interface NewContentForm {
   customPageName?: string;
 }
 
-type PageTemplateKey = 'home' | 'resources' | 'contact';
+type PageTemplateKey = 'home' | 'resources' | 'contact' | 'about';
 
 const ADMIN_EMAILS = [
   "Kenneth.j1698@gmail.com",
@@ -87,6 +88,24 @@ const DEFAULT_PAGE_TEMPLATES: Record<PageTemplateKey, any> = {
         content: "Connect with Motion Wealth Group for personalized insights and resources to help you achieve your financial goals."
       }
     }
+  },
+  about: {
+    pageName: "about",
+    title: "Our Story",
+    subtitle: "Get to know the people behind Motion Wealth Group",
+    content: `
+      <h2>Welcome to Motion Wealth Group</h2>
+      <p>This is where you can share your personal story, background, and what drives your passion for helping others succeed in trading and investing.</p>
+      
+      <h3>Our Mission</h3>
+      <p>Add your personal mission statement and what makes your approach unique.</p>
+      
+      <h3>Our Journey</h3>
+      <p>Share your journey, experiences, and what led you to create Motion Wealth Group.</p>
+      
+      <h3>Why We're Different</h3>
+      <p>Explain what sets you apart from other trading educators and financial advisors.</p>
+    `
   },
   resources: {
     pageName: "resources",
@@ -134,7 +153,7 @@ const DEFAULT_PAGE_TEMPLATES: Record<PageTemplateKey, any> = {
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState<"blog" | "resources" | "settings">("blog");
+  const [tab, setTab] = useState<"blog" | "resources" | "pages" | "settings">("blog");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [content, setContent] = useState<PageContent[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
@@ -177,6 +196,8 @@ export default function AdminDashboard() {
       fetchPosts();
     } else if (tab === "resources") {
       fetchResources();
+    } else if (tab === "pages") {
+      fetchPageContent();
     } else if (tab === "settings") {
       fetchSiteSettings();
     }
@@ -238,35 +259,30 @@ export default function AdminDashboard() {
   const fetchResources = async () => {
     setDataLoading(true);
     setDataError(null);
-    
-    console.log("Fetching resources...");
     try {
-      // First, ensure the database has the required resources
-      try {
-        await ensureResources();
-        console.log("Ensured database has required resources");
-      } catch (ensureError) {
-        console.warn("Could not ensure resources in database:", ensureError);
-        // Continue anyway
-      }
-      
-      const docs = await getDocuments(RESOURCES_COLLECTION);
-      console.log("Resources fetched:", docs.length);
-      
-      const typedDocs: Resource[] = docs.map((doc: any) => ({
-        id: doc.id,
-        category: doc.category || "",
-        categoryLabel: doc.categoryLabel || "",
-        title: doc.title || "",
-        description: doc.description || "",
-        imageUrl: doc.imageUrl || null,
-        link: doc.link || ""
-      }));
-      setResources(typedDocs);
+      console.log("Fetching resources...");
+      const resourcesData = await getDocuments(RESOURCES_COLLECTION);
+      console.log("Resources fetched:", resourcesData);
+      setResources(resourcesData || []);
     } catch (error) {
       console.error("Error fetching resources:", error);
-      setDataError("Failed to fetch resources. Please try refreshing the page.");
-      setActionError("Failed to fetch resources");
+      setDataError("Failed to load resources. Please try again.");
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const fetchPageContent = async () => {
+    setDataLoading(true);
+    setDataError(null);
+    try {
+      console.log("Fetching page content...");
+      const contentData = await getDocuments(CONTENT_COLLECTION);
+      console.log("Page content fetched:", contentData);
+      setContent(contentData || []);
+    } catch (error) {
+      console.error("Error fetching page content:", error);
+      setDataError("Failed to load page content. Please try again.");
     } finally {
       setDataLoading(false);
     }
@@ -659,6 +675,12 @@ export default function AdminDashboard() {
           onClick={() => setTab("resources")}
         >
           Resources
+        </button>
+        <button
+          className={`py-2 px-4 ${tab === "pages" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
+          onClick={() => setTab("pages")}
+        >
+          Pages
         </button>
         <button
           className={`py-2 px-4 ${tab === "settings" ? "border-b-2 border-mwg-accent text-mwg-accent" : "text-gray-600"}`}
@@ -1074,6 +1096,58 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
+        </div>
+      )}
+      
+      {/* Pages tab */}
+      {tab === "pages" && !dataLoading && (
+        <div>
+          {actionSuccess && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+              <p>{actionSuccess}</p>
+            </div>
+          )}
+          
+          {actionError && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{actionError}</p>
+            </div>
+          )}
+          
+          <h2 className="text-xl font-bold mb-4">Page Content Management</h2>
+          
+          {/* About Page Editor */}
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 className="font-bold text-lg mb-4">About Page</h3>
+            <AboutPageEditor />
+          </div>
+          
+          {/* Other Page Content */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="font-bold text-lg mb-4">Other Page Content</h3>
+            {content.length === 0 ? (
+              <p className="text-gray-500">No page content found.</p>
+            ) : (
+              <div className="space-y-4">
+                {content.map((item) => (
+                  <div key={item.id} className="border border-gray-200 rounded p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-semibold">{item.pageName}</h4>
+                      <button
+                        onClick={() => handleDeleteContent(item.id)}
+                        className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Content: {typeof item.content === 'string' ? item.content.substring(0, 100) + '...' : 'Object content'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
       
